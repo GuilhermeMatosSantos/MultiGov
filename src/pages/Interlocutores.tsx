@@ -46,6 +46,7 @@ function emptySubstituicao() {
     email: "",
     telefone: "",
     desde: new Date().toISOString().slice(0, 10),
+    notasTransicao: "",
   };
 }
 
@@ -132,6 +133,7 @@ export function Interlocutores() {
       telefone: substituicaoAlvo.telefone,
       desde: substituicaoAlvo.atualizadoEm,
       ate: substituicaoForm.desde,
+      notasTransicao: substituicaoForm.notasTransicao,
     };
     interlocutoresRepo.update(substituicaoAlvo.id, {
       nome: substituicaoForm.nome,
@@ -361,6 +363,9 @@ export function Interlocutores() {
                     <p>
                       {h.cargo} · {h.email} · {h.telefone}
                     </p>
+                    {h.notasTransicao && (
+                      <p className="field-hint">📋 Transição: {h.notasTransicao}</p>
+                    )}
                   </div>
                 ))}
             </div>
@@ -416,6 +421,19 @@ export function Interlocutores() {
                 value={substituicaoForm.desde}
                 onChange={(e) => setSubstituicaoForm((p) => ({ ...p, desde: e.target.value }))}
               />
+            </div>
+            <div className="form-field form-field-full">
+              <label>O que {substituicaoAlvo.nome} sabia sobre processos em curso</label>
+              <textarea
+                rows={3}
+                placeholder="Ex.: candidaturas pendentes, compromissos verbais, contactos-chave a acompanhar..."
+                value={substituicaoForm.notasTransicao}
+                onChange={(e) => setSubstituicaoForm((p) => ({ ...p, notasTransicao: e.target.value }))}
+              />
+              <span className="field-hint">
+                Fica registado no histórico — a rotatividade de pessoal é uma das principais causas de
+                perda de capacidade institucional entre entidades.
+              </span>
             </div>
             <div className="form-actions">
               <button type="button" className="btn btn-ghost" onClick={() => setSubstituicaoAlvo(null)}>

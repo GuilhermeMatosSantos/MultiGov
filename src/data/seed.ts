@@ -419,10 +419,12 @@ export const seedProjetos: Projeto[] = [
     territorio: "CIM do Cávado",
     programa: "Norte 2020",
     periodo: "2022–2024",
-    efeitos:
+    oQueResultou:
       "Aumento da utilização do espaço público, redução de temperatura de superfície em cerca de 2°C no verão, novo ponto de encontro comunitário.",
-    licoes:
-      "O envolvimento dos comerciantes locais desde a fase de projeto reduziu reclamações durante a obra.",
+    oQueNaoResultou:
+      "Sinalética inicial em português apenas teve de ser revista para incluir inglês, dado o fluxo turístico não antecipado.",
+    condicoesReplicabilidade:
+      "O envolvimento dos comerciantes locais desde a fase de projeto reduziu reclamações durante a obra — replicável em qualquer intervenção em espaço comercial ativo.",
     boaPratica: true,
     fonte: "Memória de projeto — CIM do Cávado",
   },
@@ -432,8 +434,11 @@ export const seedProjetos: Projeto[] = [
     territorio: "Região Centro",
     programa: "Pessoas 2020",
     periodo: "2023",
-    efeitos: "120 técnicos formados; redução observada no tempo médio de resposta a candidaturas.",
-    licoes: "Formações demasiado genéricas tiveram menor adesão do que módulos práticos por tipo de fundo.",
+    oQueResultou: "120 técnicos formados; redução observada no tempo médio de resposta a candidaturas.",
+    oQueNaoResultou:
+      "Formações demasiado genéricas tiveram menor adesão do que módulos práticos por tipo de fundo.",
+    condicoesReplicabilidade:
+      "Requer massa crítica mínima de 15 técnicos por sessão para ser financeiramente viável — municípios pequenos precisam de agrupar-se via CIM.",
     boaPratica: true,
     fonte: "Avaliação ADC",
   },

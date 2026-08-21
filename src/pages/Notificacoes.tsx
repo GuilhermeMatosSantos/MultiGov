@@ -40,6 +40,11 @@ export function Notificacoes() {
         <span>
           {isNovo(n.criadoEm, lastSeen) && <span className="badge-novo">Novo</span>}
           {identidade.entidade && relevante(n) && <span className="dot-relevante" title="Relevante para a minha entidade" />}
+          {n.riscoDescompromisso && (
+            <span className="badge badge-danger-soft" title="Risco de descompromisso de fundos (N+3)" style={{ marginRight: 6 }}>
+              ⚠ N+3
+            </span>
+          )}
           {n.titulo}
         </span>
       ),
@@ -79,11 +84,21 @@ export function Notificacoes() {
       type: "select",
       fullWidth: true,
       options: processos.map((p) => ({ value: p.id, label: p.titulo })),
+      onValueChange: (processoId) => {
+        const processo = processos.find((p) => p.id === processoId);
+        if (!processo) return;
+        return { entidadeOrigem: processo.entidadeResponsavel, entidadesAfetadas: processo.programa };
+      },
     },
     { key: "dataPublicacao", label: "Data de publicação", type: "date", required: true },
     { key: "prazo", label: "Prazo (se aplicável)", type: "date" },
     { key: "descricao", label: "Descrição", type: "textarea", fullWidth: true },
     { key: "lida", label: "Marcar como lida", type: "checkbox" },
+    {
+      key: "riscoDescompromisso",
+      label: "Assinalar risco de descompromisso de fundos por atraso (regra N+3)",
+      type: "checkbox",
+    },
   ];
 
   const filters: FilterConfig<Notificacao>[] = [
@@ -154,6 +169,7 @@ export function Notificacoes() {
         lida: false,
         processoId: "",
         criadoEm: new Date().toISOString(),
+        riscoDescompromisso: false,
       })}
     />
   );

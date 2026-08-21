@@ -36,6 +36,12 @@ const fields: FieldConfig<IndicadorTerritorial>[] = [
   { key: "unidade", label: "Unidade", type: "text" },
   { key: "ano", label: "Ano", type: "text" },
   { key: "fonte", label: "Fonte", type: "text", fullWidth: true },
+  {
+    key: "intervencaoRelacionada",
+    label: "Aviso/projeto que incidiu sobre este território (para leitura de correlação)",
+    type: "text",
+    fullWidth: true,
+  },
 ];
 
 function extrairNumero(valor: string): number | null {
@@ -44,26 +50,34 @@ function extrairNumero(valor: string): number | null {
 }
 
 function renderGrafico(filtrados: IndicadorTerritorial[]) {
+  // Comparar só dentro da mesma tipologia territorial (Município com
+  // Município, CIM com CIM...) — comparar tipos diferentes lado a lado
+  // é enganador (a OCDE usa tipologias territoriais precisamente para
+  // evitar isto no "Regional Well-Being framework").
   const grupos = new Map<string, IndicadorTerritorial[]>();
   for (const i of filtrados) {
     if (extrairNumero(i.valor) === null) continue;
-    const grupo = grupos.get(i.indicador) ?? [];
+    const chave = `${i.indicador}::${i.tipoTerritorio}`;
+    const grupo = grupos.get(chave) ?? [];
     grupo.push(i);
-    grupos.set(i.indicador, grupo);
+    grupos.set(chave, grupo);
   }
   const gruposComparaveis = Array.from(grupos.entries()).filter(([, items]) => items.length >= 2);
   if (gruposComparaveis.length === 0) return null;
 
   return (
     <section className="chart-section">
-      <h2>Comparação por indicador</h2>
-      {gruposComparaveis.map(([indicador, items]) => {
+      <h2>Comparação por indicador (dentro da mesma tipologia territorial)</h2>
+      {gruposComparaveis.map(([chave, items]) => {
+        const [indicador, tipo] = chave.split("::");
         const valores = items.map((i) => ({ item: i, num: extrairNumero(i.valor) ?? 0 }));
         const max = Math.max(...valores.map((v) => v.num), 1);
         const ordenados = [...valores].sort((a, b) => b.num - a.num);
         return (
-          <div key={indicador} className="chart-group">
-            <div className="chart-group-title">{indicador}</div>
+          <div key={chave} className="chart-group">
+            <div className="chart-group-title">
+              {indicador} <span className="feed-item-meta">· {tipo}</span>
+            </div>
             {ordenados.map(({ item, num }) => (
               <div key={item.id} className="chart-bar-row">
                 <span className="chart-bar-label" title={item.territorio}>
@@ -115,6 +129,7 @@ export function MonitorizacaoTerritorial() {
         unidade: "",
         ano: String(new Date().getFullYear()),
         fonte: "",
+        intervencaoRelacionada: "",
       })}
     />
   );

@@ -51,6 +51,7 @@ function emptyForm(): NoticiaForm {
     referencia: "",
     criadoEm: new Date().toISOString(),
     imagem: "",
+    processosAfetados: "",
   };
 }
 
@@ -248,6 +249,9 @@ export function Noticias() {
                 </div>
                 <h2 className="news-headline">{lead.titulo}</h2>
                 <p className="news-dek">{lead.resumo}</p>
+                {lead.processosAfetados && (
+                  <p className="field-hint">📎 Afeta: {lead.processosAfetados}</p>
+                )}
                 {lead.temas.length > 0 && (
                   <div className="news-tags">
                     {lead.temas.map((t) => (
@@ -446,6 +450,18 @@ export function Noticias() {
                 Se colares um URL, isto vai buscar título, resumo e imagem através de um serviço externo
                 (microlink.io) — o URL é enviado a esse serviço nesse momento. Revê sempre antes de guardar.
               </p>
+            </div>
+            <div className="form-field form-field-full">
+              <label>Processos/avisos concretos afetados por esta alteração (opcional)</label>
+              <input
+                type="text"
+                placeholder="Ex.: Candidatura #2026-0451, Aviso 12/2026..."
+                value={formData.processosAfetados}
+                onChange={(e) => setFormData((p) => ({ ...p, processosAfetados: e.target.value }))}
+              />
+              <span className="field-hint">
+                Liga a mudança regulamentar ao que concretamente afeta, em vez de só ao tema geral.
+              </span>
             </div>
 
             <div className="form-actions">

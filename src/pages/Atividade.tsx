@@ -38,6 +38,18 @@ export function Atividade() {
     })
     .sort((a, b) => b.quando.localeCompare(a.quando));
 
+  // Padrões de atividade por entidade (não por pessoa) podem funcionar
+  // como indicador indireto de capacidade administrativa desigual entre
+  // AG/OI — não é vigilância individual, é onde reforçar apoio.
+  const HA_30_DIAS = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const contagemPorEntidade = new Map<string, number>();
+  for (const a of itens) {
+    if (new Date(a.quando).getTime() < HA_30_DIAS) continue;
+    contagemPorEntidade.set(a.entidade, (contagemPorEntidade.get(a.entidade) ?? 0) + 1);
+  }
+  const entidadesOrdenadas = Array.from(contagemPorEntidade.entries()).sort((a, b) => b[1] - a[1]);
+  const maxContagem = Math.max(...entidadesOrdenadas.map(([, n]) => n), 1);
+
   async function limparHistorico() {
     const ok = await confirmDialog(
       "Limpar todo o registo de atividade? Esta ação não pode ser desfeita.",
@@ -66,6 +78,23 @@ export function Atividade() {
           </button>
         )}
       </div>
+
+      {entidadesOrdenadas.length > 0 && (
+        <section className="chart-section">
+          <h2>Ações por entidade — últimos 30 dias</h2>
+          {entidadesOrdenadas.map(([entidade, n]) => (
+            <div key={entidade} className="chart-bar-row">
+              <span className="chart-bar-label" title={entidade}>
+                {entidade}
+              </span>
+              <div className="chart-bar-track">
+                <div className="chart-bar-fill" style={{ width: `${Math.max((n / maxContagem) * 100, 3)}%` }} />
+              </div>
+              <span className="chart-bar-value">{n} ação(ões)</span>
+            </div>
+          ))}
+        </section>
+      )}
 
       <FilterBar
         search={search}

@@ -11,6 +11,8 @@ const tipos: RegistoInformalType["tipo"][] = [
   "Outro",
 ];
 
+const estados: NonNullable<RegistoInformalType["estado"]>[] = ["A confirmar formalmente", "Decisório"];
+
 export function RegistoInformal() {
   const [identidade] = useIdentidade();
   const processos = processosRepo.list();
@@ -30,6 +32,18 @@ export function RegistoInformal() {
     },
     { key: "entidade", label: "Entidade(s)" },
     { key: "data", label: "Data" },
+    {
+      key: "estado",
+      label: "Estado",
+      render: (r) =>
+        r.estado ? (
+          <span className={`badge ${r.estado === "Decisório" ? "badge-alert" : "badge-neutral"}`}>
+            {r.estado}
+          </span>
+        ) : (
+          "—"
+        ),
+    },
   ];
 
   const fields: FieldConfig<RegistoInformalType>[] = [
@@ -40,12 +54,24 @@ export function RegistoInformal() {
       type: "select",
       fullWidth: true,
       options: processos.map((p) => ({ value: p.id, label: p.titulo })),
+      onValueChange: (processoId) => {
+        const processo = processos.find((p) => p.id === processoId);
+        if (!processo) return;
+        return { processoAssociado: processo.titulo, entidade: processo.entidadeResponsavel };
+      },
     },
     { key: "processoAssociado", label: "Descrição livre do processo", type: "text", fullWidth: true },
     { key: "participantes", label: "Participantes", type: "text" },
     { key: "entidade", label: "Entidade(s)", type: "text" },
     { key: "data", label: "Data", type: "date", required: true },
     { key: "resumo", label: "Resumo do que foi decidido/esclarecido", type: "textarea", fullWidth: true },
+    {
+      key: "estado",
+      label: "Classificação para trilho de auditoria",
+      type: "select",
+      options: estados,
+    },
+    { key: "prazoRegularizacao", label: "Prazo para regularização formal (se aplicável)", type: "date" },
   ];
 
   const filters: FilterConfig<RegistoInformalType>[] = [
@@ -72,6 +98,8 @@ export function RegistoInformal() {
         entidade: identidade.entidade,
         resumo: "",
         data: new Date().toISOString().slice(0, 10),
+        estado: "A confirmar formalmente",
+        prazoRegularizacao: "",
       })}
     />
   );

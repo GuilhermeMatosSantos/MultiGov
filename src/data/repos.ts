@@ -61,7 +61,9 @@ export const topicosRepo = createLocalStorageRepository<Topico>("multigov.topico
 
 export const processosRepo = createLocalStorageRepository<Processo>("multigov.processos.v2", seedProcessos);
 
-export const projetosRepo = createLocalStorageRepository<Projeto>("multigov.projetos.v2", seedProjetos);
+// v3: "efeitos"/"licoes" (texto livre) substituídos por taxonomia estruturada
+// de lições (o que resultou / o que não resultou / condições de replicabilidade).
+export const projetosRepo = createLocalStorageRepository<Projeto>("multigov.projetos.v3", seedProjetos);
 
 // v3: acrescentado o campo "imagem" às notícias.
 export const noticiasRepo = createLocalStorageRepository<Noticia>("multigov.noticias.v3", seedNoticias);

@@ -24,6 +24,10 @@ export interface FieldConfig<T> {
   options?: (string | SelectOption)[];
   required?: boolean;
   fullWidth?: boolean;
+  /** Princípio "once-only": ao escolher este valor, devolve outros campos a
+   * preencher automaticamente a partir daí (ex.: entidade/programa de um
+   * processo já registado), para não pedir a mesma informação outra vez. */
+  onValueChange?: (value: string) => Record<string, unknown> | void;
 }
 
 function toSelectOption(opt: string | SelectOption): SelectOption {
@@ -426,9 +430,11 @@ export function ModulePage<T extends { id: string }>({
                     <select
                       required={field.required}
                       value={String(formData[field.key as string] ?? "")}
-                      onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, [field.key as string]: e.target.value }))
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const extra = field.onValueChange?.(value) ?? {};
+                        setFormData((prev) => ({ ...prev, [field.key as string]: value, ...extra }));
+                      }}
                     >
                       <option value="">Selecionar...</option>
                       {field.options?.map(toSelectOption).map((opt) => (

@@ -20,8 +20,14 @@ const fields: FieldConfig<Projeto>[] = [
   { key: "territorio", label: "Território", type: "text", required: true },
   { key: "programa", label: "Programa", type: "text" },
   { key: "periodo", label: "Período", type: "text" },
-  { key: "efeitos", label: "Efeitos observados no território", type: "textarea", fullWidth: true },
-  { key: "licoes", label: "Lições aprendidas", type: "textarea", fullWidth: true },
+  { key: "oQueResultou", label: "O que resultou", type: "textarea", fullWidth: true },
+  { key: "oQueNaoResultou", label: "O que não resultou", type: "textarea", fullWidth: true },
+  {
+    key: "condicoesReplicabilidade",
+    label: "Condições de replicabilidade",
+    type: "textarea",
+    fullWidth: true,
+  },
   { key: "boaPratica", label: "Marcar como boa prática a replicar", type: "checkbox" },
   { key: "fonte", label: "Fonte", type: "text", fullWidth: true },
 ];
@@ -45,7 +51,7 @@ export function MemoriaProjetos() {
   return (
     <ModulePage<Projeto>
       title="Memória de projetos e boas práticas"
-      description="Antes de fazer, ver o que já se fez. Efeitos e lições de projetos anteriores por território — não faturas, mas resultados."
+      description="Antes de fazer, ver o que já se fez. O que resultou, o que não resultou e em que condições é replicável — não faturas, mas lições estruturadas."
       repo={projetosRepo}
       columns={columns}
       fields={fields}
@@ -57,8 +63,9 @@ export function MemoriaProjetos() {
         territorio: "",
         programa: "",
         periodo: "",
-        efeitos: "",
-        licoes: "",
+        oQueResultou: "",
+        oQueNaoResultou: "",
+        condicoesReplicabilidade: "",
         boaPratica: false,
         fonte: "",
       })}

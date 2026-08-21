@@ -39,7 +39,7 @@ export function Transparencia() {
   return (
     <ModulePage<Decisao>
       title="Camada de transparência e disseminação"
-      description="O que está a ser decidido e executado — visibilidade da coordenação multinível e disseminação clara de resultados."
+      description="Não é o Kohesio (a plataforma oficial da Comissão para lista de operações e beneficiários — transparência de output). Este é o nicho que o Kohesio não cobre: transparência do processo de coordenação — quem decidiu o quê, entre que níveis, e quando."
       repo={decisoesRepo}
       columns={columns}
       fields={fields}

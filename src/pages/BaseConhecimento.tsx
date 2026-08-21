@@ -4,7 +4,20 @@ import { faqRepo } from "../data/repos";
 import type { FAQEntry } from "../types";
 
 const columns: ColumnConfig<FAQEntry>[] = [
-  { key: "pergunta", label: "Pergunta" },
+  {
+    key: "pergunta",
+    label: "Pergunta",
+    render: (f) => (
+      <span>
+        {f.vinculativa && (
+          <span className="badge badge-info" title="Resposta oficial vinculativa" style={{ marginRight: 6 }}>
+            Vinculativa
+          </span>
+        )}
+        {f.pergunta}
+      </span>
+    ),
+  },
   { key: "categoria", label: "Categoria" },
   { key: "programaRelacionado", label: "Programa" },
   { key: "atualizadoEm", label: "Atualizado em" },
@@ -18,6 +31,11 @@ const fields: FieldConfig<FAQEntry>[] = [
   { key: "fonte", label: "Fonte do entendimento", type: "text" },
   { key: "atualizadoEm", label: "Atualizado em", type: "date" },
   { key: "tags", label: "Tags (separadas por vírgula)", type: "text", fullWidth: true },
+  {
+    key: "vinculativa",
+    label: "Marcar como resposta oficial vinculativa (arbitragem de conflito de interpretação)",
+    type: "checkbox",
+  },
 ];
 
 export function BaseConhecimento() {
@@ -47,6 +65,7 @@ export function BaseConhecimento() {
         fonte: "",
         atualizadoEm: new Date().toISOString().slice(0, 10),
         tags: "",
+        vinculativa: false,
       })}
     />
   );

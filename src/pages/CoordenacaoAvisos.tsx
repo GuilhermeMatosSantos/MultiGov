@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { avisosRepo } from "../data/repos";
 import { newId } from "../lib/id";
 import type { Aviso } from "../types";
@@ -76,6 +76,29 @@ export function CoordenacaoAvisos() {
   const { page, setPage, totalPages, paginated } = usePagination(filtered, [search, estadoFiltro, programaFiltro]);
 
   const active = avisos.find((a) => a.id === activeId) ?? null;
+
+  // Sobreposição temática/territorial entre avisos de fundos diferentes é um
+  // "gap de política" clássico (fragmentação setorial) — sinalizar antes de
+  // publicar, não descobrir depois de já estarem ambos no terreno.
+  function avisosSobrepostos(alvo: Aviso): Aviso[] {
+    const territoriosAlvo = alvo.entidadesEnvolvidas
+      .split(",")
+      .map((t) => t.trim().toLowerCase())
+      .filter(Boolean);
+    const inicioAlvo = alvo.dataPrevistaAbertura;
+    const fimAlvo = alvo.dataPrevistaFecho || "9999-12-31";
+    return avisos.filter((a) => {
+      if (a.id === alvo.id || a.estado === "Fechado") return false;
+      const mesmoPrograma = a.programa && a.programa === alvo.programa;
+      const territoriosA = a.entidadesEnvolvidas.split(",").map((t) => t.trim().toLowerCase());
+      const territorioComum = territoriosA.some((t) => t && territoriosAlvo.includes(t));
+      if (!mesmoPrograma && !territorioComum) return false;
+      const inicioA = a.dataPrevistaAbertura;
+      const fimA = a.dataPrevistaFecho || "9999-12-31";
+      if (!inicioAlvo || !inicioA) return mesmoPrograma || territorioComum;
+      return inicioAlvo <= fimA && inicioA <= fimAlvo;
+    });
+  }
 
   function openCreate() {
     setEditing(null);
@@ -252,6 +275,12 @@ export function CoordenacaoAvisos() {
                         </>
                       )}
                     </div>
+                    {avisosSobrepostos(active).length > 0 && (
+                      <p className="field-hint">
+                        ⚠ Possível sobreposição temática/territorial com:{" "}
+                        {avisosSobrepostos(active).map((a) => a.titulo).join(", ")}
+                      </p>
+                    )}
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
                     <button className="btn btn-ghost" onClick={() => openEdit(active)}>
@@ -339,6 +368,13 @@ export function CoordenacaoAvisos() {
 
       {formOpen && (
         <Modal title={editing ? "Editar aviso" : "Novo aviso"} onClose={() => setFormOpen(false)}>
+          {!editing && (
+            <p className="field-hint" style={{ marginBottom: 12 }}>
+              💡 Antes de desenhar critérios de raiz, vale a pena consultar a{" "}
+              <Link to="/memoria-projetos">Memória de Projetos</Link> — lições de avisos anteriores no mesmo
+              território/programa raramente são reutilizadas se não forem consultadas ativamente.
+            </p>
+          )}
           <form className="form" onSubmit={handleSubmit}>
             <div className="form-field form-field-full">
               <label>

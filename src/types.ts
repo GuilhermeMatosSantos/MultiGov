@@ -19,6 +19,7 @@ export interface HistoricoTitular {
   telefone: string;
   desde: string;
   ate: string;
+  notasTransicao?: string;
 }
 
 export interface Interlocutor {
@@ -47,6 +48,7 @@ export interface Notificacao {
   lida: boolean;
   processoId: string;
   criadoEm: string;
+  riscoDescompromisso?: boolean;
 }
 
 export interface FAQEntry {
@@ -58,6 +60,7 @@ export interface FAQEntry {
   fonte: string;
   atualizadoEm: string;
   tags: string;
+  vinculativa?: boolean;
 }
 
 export interface ConfirmacaoEntidade {
@@ -88,6 +91,8 @@ export interface RegistoInformal {
   entidade: string;
   resumo: string;
   data: string;
+  estado?: "A confirmar formalmente" | "Decisório";
+  prazoRegularizacao?: string;
 }
 
 export interface IndicadorTerritorial {
@@ -100,6 +105,7 @@ export interface IndicadorTerritorial {
   unidade: string;
   ano: string;
   fonte: string;
+  intervencaoRelacionada?: string;
 }
 
 export interface Decisao {
@@ -129,6 +135,10 @@ export interface Topico {
   entidade: string;
   data: string;
   mensagens: Mensagem[];
+  tipoPedido?: "Pergunta" | "Pedido de intercâmbio" | "Partilha de boas práticas";
+  formatoIntercambio?: "Reunião" | "Visita" | "Workshop" | "Documento partilhado";
+  objetivoIntercambio?: string;
+  resultado?: string;
 }
 
 export interface Processo {
@@ -148,8 +158,9 @@ export interface Projeto {
   territorio: string;
   programa: string;
   periodo: string;
-  efeitos: string;
-  licoes: string;
+  oQueResultou: string;
+  oQueNaoResultou: string;
+  condicoesReplicabilidade: string;
   boaPratica: boolean;
   fonte: string;
 }
@@ -168,6 +179,7 @@ export interface Noticia {
   referencia: string;
   criadoEm: string;
   imagem: string;
+  processosAfetados?: string;
 }
 
 export interface Identidade {

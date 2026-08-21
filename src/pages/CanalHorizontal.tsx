@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { topicosRepo } from "../data/repos";
 import { newId } from "../lib/id";
@@ -16,6 +16,8 @@ import { registarAtividade } from "../lib/atividade";
 import { usePagination } from "../lib/usePagination";
 
 const categorias: Topico["categoria"][] = ["CIM–CIM", "AG–AG", "CCDR–CCDR", "Boas práticas", "Outro"];
+const tiposPedido: NonNullable<Topico["tipoPedido"]>[] = ["Pergunta", "Pedido de intercâmbio", "Partilha de boas práticas"];
+const formatos: NonNullable<Topico["formatoIntercambio"]>[] = ["Reunião", "Visita", "Workshop", "Documento partilhado"];
 
 export function CanalHorizontal() {
   const location = useLocation();
@@ -35,8 +37,12 @@ export function CanalHorizontal() {
       categoria: "Boas práticas" as Topico["categoria"],
       autor: identidade.nome,
       entidade: identidade.entidade,
+      tipoPedido: "Partilha de boas práticas" as NonNullable<Topico["tipoPedido"]>,
+      formatoIntercambio: "Reunião" as NonNullable<Topico["formatoIntercambio"]>,
+      objetivoIntercambio: "",
     };
   });
+  const [novoResultado, setNovoResultado] = useState("");
 
   function refresh() {
     setTopicos(topicosRepo.list());
@@ -55,6 +61,10 @@ export function CanalHorizontal() {
 
   const active = topicos.find((t) => t.id === activeId) ?? null;
 
+  useEffect(() => {
+    setNovoResultado(active?.resultado ?? "");
+  }, [active?.id, active?.resultado]);
+
   function handleCreateTopico(e: React.FormEvent) {
     e.preventDefault();
     const topico: Topico = {
@@ -65,11 +75,23 @@ export function CanalHorizontal() {
       entidade: novoTopico.entidade,
       data: new Date().toISOString().slice(0, 10),
       mensagens: [],
+      tipoPedido: novoTopico.tipoPedido,
+      ...(novoTopico.tipoPedido === "Pedido de intercâmbio"
+        ? { formatoIntercambio: novoTopico.formatoIntercambio, objetivoIntercambio: novoTopico.objetivoIntercambio }
+        : {}),
     };
     topicosRepo.create(topico);
     refresh();
     setNovoTopicoAberto(false);
-    setNovoTopico({ titulo: "", categoria: "Boas práticas", autor: "", entidade: "" });
+    setNovoTopico({
+      titulo: "",
+      categoria: "Boas práticas",
+      autor: "",
+      entidade: "",
+      tipoPedido: "Partilha de boas práticas",
+      formatoIntercambio: "Reunião",
+      objetivoIntercambio: "",
+    });
     setActiveId(topico.id);
     toast("Tópico criado.");
     registarAtividade("criar", "Canal Horizontal", topico.titulo);
@@ -91,6 +113,15 @@ export function CanalHorizontal() {
     topicosRepo.update(active.id, { mensagens });
     refresh();
     setNovaMensagem("");
+  }
+
+  function handleGuardarResultado(e: React.FormEvent) {
+    e.preventDefault();
+    if (!active) return;
+    topicosRepo.update(active.id, { resultado: novoResultado });
+    refresh();
+    toast("Resultado do intercâmbio guardado.");
+    registarAtividade("editar", "Canal Horizontal", `Resultado documentado: ${active.titulo}`);
   }
 
   async function handleDeleteTopico(id: string) {
@@ -156,6 +187,11 @@ export function CanalHorizontal() {
               onClick={() => setActiveId(t.id)}
             >
               <span className="feed-item-tag">{t.categoria}</span>
+              {t.tipoPedido === "Pedido de intercâmbio" && (
+                <span className="badge badge-info" style={{ marginLeft: 6 }}>
+                  {t.resultado ? "Intercâmbio concluído" : "Pedido de intercâmbio"}
+                </span>
+              )}
               <div className="forum-list-item-title">{t.titulo}</div>
               <div className="feed-item-meta">
                 {t.entidade} · {t.mensagens.length} mensagem(ns)
@@ -175,11 +211,31 @@ export function CanalHorizontal() {
                   <div className="feed-item-meta">
                     Criado por {active.autor} ({active.entidade}) em {active.data}
                   </div>
+                  {active.tipoPedido === "Pedido de intercâmbio" && (
+                    <p className="field-hint">
+                      🔁 Formato: {active.formatoIntercambio}
+                      {active.objetivoIntercambio && ` · Objetivo: ${active.objetivoIntercambio}`}
+                    </p>
+                  )}
                 </div>
                 <button className="btn btn-ghost btn-danger" onClick={() => handleDeleteTopico(active.id)}>
                   🗑️ Remover tópico
                 </button>
               </div>
+
+              {active.tipoPedido === "Pedido de intercâmbio" && (
+                <form className="forum-reply-form" onSubmit={handleGuardarResultado} style={{ marginBottom: 16 }}>
+                  <textarea
+                    placeholder="Resultado documentado do intercâmbio (o que se aprendeu, o que ficou decidido)..."
+                    value={novoResultado}
+                    onChange={(e) => setNovoResultado(e.target.value)}
+                    rows={2}
+                  />
+                  <button type="submit" className="btn btn-ghost">
+                    Guardar resultado
+                  </button>
+                </form>
+              )}
 
               <div className="forum-messages">
                 {active.mensagens.length === 0 && (
@@ -256,6 +312,55 @@ export function CanalHorizontal() {
                 onChange={(e) => setNovoTopico((p) => ({ ...p, autor: e.target.value }))}
               />
             </div>
+            <div className="form-field form-field-full">
+              <label>Tipo de pedido</label>
+              <select
+                value={novoTopico.tipoPedido}
+                onChange={(e) =>
+                  setNovoTopico((p) => ({ ...p, tipoPedido: e.target.value as NonNullable<Topico["tipoPedido"]> }))
+                }
+              >
+                {tiposPedido.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <span className="field-hint">
+                Inspirado no modelo real TAIEX-REGIO Peer2Peer da DG REGIO — pedidos estruturados de
+                intercâmbio entre pares, não só um fórum aberto.
+              </span>
+            </div>
+            {novoTopico.tipoPedido === "Pedido de intercâmbio" && (
+              <>
+                <div className="form-field">
+                  <label>Formato</label>
+                  <select
+                    value={novoTopico.formatoIntercambio}
+                    onChange={(e) =>
+                      setNovoTopico((p) => ({
+                        ...p,
+                        formatoIntercambio: e.target.value as NonNullable<Topico["formatoIntercambio"]>,
+                      }))
+                    }
+                  >
+                    {formatos.map((f) => (
+                      <option key={f} value={f}>
+                        {f}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-field form-field-full">
+                  <label>Objetivo do intercâmbio</label>
+                  <input
+                    value={novoTopico.objetivoIntercambio}
+                    onChange={(e) => setNovoTopico((p) => ({ ...p, objetivoIntercambio: e.target.value }))}
+                    placeholder="Ex.: perceber como o CIM do Cávado organizou o balcão único de candidaturas"
+                  />
+                </div>
+              </>
+            )}
             <div className="form-actions">
               <button type="button" className="btn btn-ghost" onClick={() => setNovoTopicoAberto(false)}>
                 Cancelar

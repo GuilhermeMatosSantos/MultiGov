@@ -129,9 +129,28 @@ export function Dashboard() {
     .sort((a, b) => (diasAte(a.prazo) ?? 0) - (diasAte(b.prazo) ?? 0))
     .slice(0, 5);
 
+  // Dependências entre entidades: o "gap de informação" mais comum em
+  // governação multinível (OCDE) não é falta de dados, é não saber que
+  // outra entidade está à espera de uma ação tua — ou tu da dela.
+  const dependenciasEntreEntidades = avisos
+    .filter((a) => a.estado !== "Fechado")
+    .map((a) => ({ aviso: a, pendentes: (a.confirmacoes ?? []).filter((c) => !c.confirmado) }))
+    .filter((d) => d.pendentes.length > 0);
+
   // Resumo do dia: destaques em frase, não números soltos — o que precisa
   // mesmo de atenção hoje, cruzado com a entidade e os interesses definidos.
   const destaques: Destaque[] = [];
+
+  for (const n of notificacoes) {
+    if (!n.riscoDescompromisso || n.lida) continue;
+    destaques.push({
+      id: `d-n3-${n.id}`,
+      icon: "🚨",
+      texto: `Risco de descompromisso de fundos (N+3): ${n.titulo}`,
+      to: "/notificacoes",
+      prioridade: -1,
+    });
+  }
 
   for (const p of prazosAVencer) {
     const dias = diasAte(p.prazo);
@@ -363,6 +382,24 @@ export function Dashboard() {
                     <div className="rail-item-title">{p.titulo}</div>
                     <div className="rail-item-meta">
                       {p.meta} · <UrgencyBadge prazo={p.prazo} />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h2 className="rail-heading">Dependências entre entidades</h2>
+            {dependenciasEntreEntidades.length === 0 ? (
+              <p className="rail-empty">Sem confirmações pendentes entre entidades neste momento.</p>
+            ) : (
+              <div className="rail-list">
+                {dependenciasEntreEntidades.map((d) => (
+                  <Link key={d.aviso.id} to="/coordenacao-avisos" className="rail-item rail-item-neutro">
+                    <div className="rail-item-title">{d.aviso.titulo}</div>
+                    <div className="rail-item-meta">
+                      Aguarda: {d.pendentes.map((p) => p.entidade).join(", ")}
                     </div>
                   </Link>
                 ))}
