@@ -117,6 +117,11 @@ export function MonitorizacaoTerritorial() {
     <ModulePage<IndicadorTerritorial>
       title="Painel de monitorização territorial"
       description="Indicadores por território cruzando dimensões económica, social, ambiental e cultural, para fundamentar decisões e comunicar resultados."
+      ajuda={{
+        oQueE: "Um painel de indicadores por território, cruzando as dimensões económica, social, ambiental, cultural e de governação.",
+        paraQueServe: "Para fundamentar decisões e comunicar resultados com dados reais em vez de perceções — e para comparar territórios do mesmo tipo entre si (município com município, CIM com CIM), evitando comparações enganadoras entre tipologias diferentes.",
+        comoUsar: "Regista o mesmo indicador para vários territórios do mesmo tipo para gerares automaticamente um gráfico comparativo. Liga o indicador a um aviso ou projeto, se for relevante, para leres a correlação.",
+      }}
       repo={indicadoresRepoAsync}
       columns={columns}
       fields={fields}

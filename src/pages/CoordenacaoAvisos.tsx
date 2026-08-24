@@ -17,6 +17,7 @@ import { useIdentidade } from "../lib/session";
 import { FilterBar } from "../components/FilterBar";
 import { Pagination } from "../components/Pagination";
 import { distinctOptions } from "../components/ModulePage";
+import { ModuleHelp } from "../components/ModuleHelp";
 import { toast } from "../lib/toast";
 import { confirmDialog } from "../lib/confirm";
 import { UrgencyBadge } from "../components/UrgencyBadge";
@@ -218,7 +219,15 @@ export function CoordenacaoAvisos() {
       />
       <div className="page-header">
         <div>
-          <h1>Espaço de coordenação de avisos</h1>
+          <h1>
+            Espaço de coordenação de avisos
+            <ModuleHelp
+              titulo="Espaço de coordenação de avisos"
+              oQueE="O espaço onde a Autoridade de Gestão e os Organismos Intermédios negoceiam calendário e critérios de um aviso antes de o publicarem."
+              paraQueServe="Para o calendário de um aviso deixar de ser uma tabela imposta por uma pessoa e passar a ser uma proposta que cada entidade envolvida pode comentar e confirmar."
+              comoUsar="Antes de criares um aviso, consulta a Memória de Projetos para veres se já houve avisos semelhantes. Adiciona as entidades que têm de se alinhar e usa as confirmações para acompanhares quem já concordou."
+            />
+          </h1>
           <p className="page-description">
             Autoridade de Gestão e Organismos Intermédios negoceiam calendário e critérios — não é só uma
             tabela preenchida por uma pessoa, é uma proposta que cada entidade comenta e confirma.

@@ -45,6 +45,11 @@ export function Transparencia() {
     <ModulePage<Decisao>
       title="Camada de transparência e disseminação"
       description="Regista as decisões de coordenação entre níveis de governação — quem decidiu o quê, com que entidade, em que momento e com que resultado. Serve para consultar o histórico de decisões de um programa ou território e perceber como uma decisão anterior influenciou o que veio a seguir."
+      ajuda={{
+        oQueE: "O registo das decisões de coordenação entre níveis de governação — quem decidiu o quê, com que entidade e em que momento.",
+        paraQueServe: "Para haver um histórico consultável do processo de decisão de um programa ou território, e não só do seu resultado final.",
+        comoUsar: "Regista uma decisão assim que for tomada, com o nível e a entidade responsável, e volta a ela mais tarde para documentar os resultados observados.",
+      }}
       repo={decisoesRepoAsync}
       columns={columns}
       fields={fields}

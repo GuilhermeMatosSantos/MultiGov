@@ -11,6 +11,7 @@ import { FilterBar } from "../components/FilterBar";
 import { Pagination } from "../components/Pagination";
 import { TagInput } from "../components/TagInput";
 import { UrgencyBadge } from "../components/UrgencyBadge";
+import { ModuleHelp } from "../components/ModuleHelp";
 import { temasDisponiveis, programasDisponiveis, territoriosDisponiveis } from "../lib/interesses";
 import { useMarkSeenOnMount, isNovo } from "../lib/lastSeen";
 import { ficheiroParaImagemComprimida } from "../lib/image";
@@ -240,7 +241,15 @@ export function Noticias() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>Notícias & Regulamentação</h1>
+          <h1>
+            Notícias & Regulamentação
+            <ModuleHelp
+              titulo="Notícias & Regulamentação"
+              oQueE="Resumos de alterações regulamentares, novas orientações e prazos relevantes vindos da Comissão Europeia, do governo ou das autoridades de gestão."
+              paraQueServe="Para consultares rapidamente o essencial de uma mudança sem teres de ir à fonte original — e para converteres uma notícia importante numa notificação interna dirigida às entidades afetadas."
+              comoUsar='Cola um URL no campo de referência para pré-preencher título, resumo e imagem automaticamente. Usa "→ Notificação" para propagar a novidade ao módulo de Notificações.'
+            />
+          </h1>
           <p className="page-description">
             Alterações a regulamentos europeus e nacionais, orientações novas e prazos relevantes — resumidos,
             para consulta rápida sem ir à fonte original.

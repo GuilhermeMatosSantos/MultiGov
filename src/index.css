@@ -83,6 +83,45 @@ h1, h2, h3 {
   color: var(--color-primary);
 }
 
+.module-help-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.module-help-trigger:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.module-help-content h3 {
+  font-size: 13px;
+  color: var(--color-primary);
+  margin: 16px 0 4px;
+}
+
+.module-help-content h3:first-child {
+  margin-top: 0;
+}
+
+.module-help-content p {
+  font-size: 13.5px;
+  color: var(--color-text);
+  line-height: 1.5;
+  margin: 0;
+}
+
 button {
   font-family: inherit;
 }

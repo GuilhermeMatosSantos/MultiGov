@@ -4,6 +4,7 @@ import type { Atividade as AtividadeType, AvaliacaoImpacto } from "../types";
 import { FilterBar } from "../components/FilterBar";
 import { EmptyState } from "../components/EmptyState";
 import { distinctOptions } from "../components/ModulePage";
+import { ModuleHelp } from "../components/ModuleHelp";
 import { confirmDialog } from "../lib/confirm";
 import { toast } from "../lib/toast";
 import { useIdentidade } from "../lib/session";
@@ -98,7 +99,15 @@ export function Atividade() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>Atividade</h1>
+          <h1>
+            Atividade
+            <ModuleHelp
+              titulo="Atividade"
+              oQueE="O registo cronológico de tudo o que foi criado, editado ou removido em qualquer módulo, por quem e quando."
+              paraQueServe="Dá visibilidade sobre quem está a usar a aplicação e como — útil para perceber padrões de participação entre entidades e para recolher feedback de impacto sobre se a ferramenta está mesmo a ajudar."
+              comoUsar="Filtra por entidade, ação ou módulo para encontrar uma alteração específica. Perfis de coordenação podem limpar o histórico quando necessário."
+            />
+          </h1>
           <p className="page-description">
             Quem fez o quê, e quando — criado, editado ou removido em qualquer módulo, atribuído à identidade
             com que cada pessoa estava a navegar. Não é um registo à prova de adulteração (qualquer pessoa

@@ -13,6 +13,7 @@ import { EmptyState } from "../components/EmptyState";
 import { FilterBar } from "../components/FilterBar";
 import { Pagination } from "../components/Pagination";
 import { distinctOptions } from "../components/ModulePage";
+import { ModuleHelp } from "../components/ModuleHelp";
 import { toast } from "../lib/toast";
 import { confirmDialog } from "../lib/confirm";
 import { registarAtividade } from "../lib/atividade";
@@ -181,7 +182,15 @@ export function Interlocutores() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>Diretório vivo de interlocutores</h1>
+          <h1>
+            Diretório vivo de interlocutores
+            <ModuleHelp
+              titulo="Diretório vivo de interlocutores"
+              oQueE="O diretório de quem é quem em cada entidade e nível — o interlocutor atual para cada área de responsabilidade, com contacto direto."
+              paraQueServe="Para saberes sempre a quem te dirigir, mesmo quando há rotatividade de pessoal — uma das principais causas de perda de conhecimento institucional entre entidades."
+              comoUsar='Ao mudar de titular, usa "Substituir titular" em vez de editar o registo — o anterior fica arquivado no histórico com o que sabia sobre processos em curso, não se perde.'
+            />
+          </h1>
           <p className="page-description">
             Quem é quem por nível e domínio — interlocutor atual, área de responsabilidade e contacto. Ao
             substituir um titular, o anterior fica guardado no histórico em vez de se perder.

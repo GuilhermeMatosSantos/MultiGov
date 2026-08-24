@@ -11,6 +11,7 @@ import { registarAtividade } from "../lib/atividade";
 import { useFavoritos } from "../lib/favoritos";
 import { useIdentidade } from "../lib/session";
 import { podeEscrever } from "../lib/permissoes";
+import { ModuleHelp, type AjudaModulo } from "./ModuleHelp";
 
 export type FieldType = "text" | "textarea" | "date" | "select" | "checkbox" | "tags";
 
@@ -69,6 +70,7 @@ interface ModulePageProps<T extends { id: string }> {
   extraActions?: (item: T, refresh: () => Promise<void>) => React.ReactNode;
   bulkActions?: (selecionados: T[], refresh: () => Promise<void>, clearSelection: () => void) => React.ReactNode;
   renderAbove?: (filtered: T[]) => React.ReactNode;
+  ajuda?: AjudaModulo;
 }
 
 export function ModulePage<T extends { id: string }>({
@@ -86,6 +88,7 @@ export function ModulePage<T extends { id: string }>({
   extraActions,
   bulkActions,
   renderAbove,
+  ajuda,
 }: ModulePageProps<T>) {
   const location = useLocation();
   const [identidade] = useIdentidade();
@@ -274,7 +277,10 @@ export function ModulePage<T extends { id: string }>({
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>{title}</h1>
+          <h1>
+            {title}
+            {ajuda && <ModuleHelp titulo={title} {...ajuda} />}
+          </h1>
           <p className="page-description">{description}</p>
         </div>
         {podeEditar ? (

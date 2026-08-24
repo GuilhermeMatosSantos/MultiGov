@@ -124,6 +124,11 @@ export function Notificacoes() {
     <ModulePage<Notificacao>
       title="Feed de notificações proativas"
       description="Alertas quando muda uma orientação, regra, aviso ou prazo. O ponto azul marca as notificações relevantes para a entidade com que estás a navegar."
+      ajuda={{
+        oQueE: "O feed de alertas proativos sobre mudanças de regras, orientações técnicas, avisos ou prazos.",
+        paraQueServe: "Para nenhuma entidade descobrir uma alteração de regras tarde demais — sobretudo prazos com risco de descompromisso de fundos (regra N+3).",
+        comoUsar: "Liga cada notificação a um processo, se aplicável, e assinala o risco de descompromisso quando for esse o caso — isso destaca-a no Painel Geral de quem tem essa entidade associada.",
+      }}
       repo={notificacoesRepoAsync}
       columns={columns}
       fields={fields}

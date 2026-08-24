@@ -14,6 +14,7 @@ import { getIdentidade, useIdentidade } from "../lib/session";
 import { FilterBar } from "../components/FilterBar";
 import { Pagination } from "../components/Pagination";
 import { distinctOptions } from "../components/ModulePage";
+import { ModuleHelp } from "../components/ModuleHelp";
 import { toast } from "../lib/toast";
 import { confirmDialog } from "../lib/confirm";
 import { Breadcrumb } from "../components/Breadcrumb";
@@ -171,7 +172,15 @@ export function CanalHorizontal() {
       />
       <div className="page-header">
         <div>
-          <h1>Canal horizontal entre pares</h1>
+          <h1>
+            Canal horizontal entre pares
+            <ModuleHelp
+              titulo="Canal horizontal entre pares"
+              oQueE="Fóruns de par-a-par entre entidades homólogas (CIM–CIM, AG–AG, CCDR–CCDR) para partilha de boas práticas ou pedidos de intercâmbio."
+              paraQueServe="Para tornar rastreável e institucional a rede informal que já existe entre pares, inspirado no modelo real TAIEX-REGIO Peer2Peer da Comissão Europeia."
+              comoUsar='Ao criar um tópico, escolhe "Pedido de intercâmbio" se quiseres estruturar formato e objetivo — e documenta o resultado no final, para ficar disponível para outras entidades no mesmo caso.'
+            />
+          </h1>
           <p className="page-description">
             Fóruns entre entidades homólogas (CIM–CIM, AG–AG) para partilha de boas práticas — a versão
             institucional e rastreável dos grupos informais que já funcionam.

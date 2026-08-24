@@ -89,6 +89,11 @@ export function RegistoInformal() {
     <ModulePage<RegistoInformalType>
       title="Registo leve do informal"
       description="Transforma um telefonema ou decisão informal numa nota associada ao processo — rastreabilidade sem a burocracia do ofício ou da ata."
+      ajuda={{
+        oQueE: "Uma nota leve associada a um processo, para registar um telefonema ou uma decisão informal.",
+        paraQueServe: "Para haver rastreabilidade de decisões tomadas fora dos canais formais, sem a burocracia de um ofício ou de uma ata.",
+        comoUsar: "Liga o registo a um processo existente e classifica-o como \"A confirmar formalmente\" quando precisar de ser regularizado depois — define um prazo para isso não ficar esquecido.",
+      }}
       repo={registoInformalRepoAsync}
       columns={columns}
       fields={fields}
