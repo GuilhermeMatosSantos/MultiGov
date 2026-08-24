@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { useIdentidade, usePerfis } from "../lib/session";
 import { registarConta, entrarConta } from "../lib/auth";
+import { garantirSessaoSupabase } from "../lib/supabaseAuth";
 import { toast } from "../lib/toast";
 import { LogoMark } from "./LogoMark";
 import type { Nivel } from "../types";
@@ -65,10 +66,20 @@ export function SessionGate({ children }: SessionGateProps) {
     }
   }
 
+  // Garante que a sessão anónima já existe antes de desbloquear a app —
+  // caso contrário, os primeiros pedidos (ex.: painel geral) partiam sem
+  // auth.uid() e a RLS devolvia listas vazias em vez dos dados reais.
+  async function entrarComoTeste(identidadeTeste: typeof form) {
+    setCarregando(true);
+    await garantirSessaoSupabase().catch(() => {});
+    setCarregando(false);
+    setIdentidade(identidadeTeste);
+  }
+
   function handleSubmitTeste(e: React.FormEvent) {
     e.preventDefault();
     if (!form.nome.trim() || !form.entidade.trim()) return;
-    setIdentidade(form);
+    entrarComoTeste(form);
   }
 
   return (
@@ -224,7 +235,8 @@ export function SessionGate({ children }: SessionGateProps) {
                       key={p.id}
                       type="button"
                       className="identity-chip"
-                      onClick={() => setIdentidade({ nome: p.nome, entidade: p.entidade, nivel: p.nivel })}
+                      disabled={carregando}
+                      onClick={() => entrarComoTeste({ nome: p.nome, entidade: p.entidade, nivel: p.nivel })}
                     >
                       {p.nome} · {p.entidade}
                     </button>
@@ -268,8 +280,8 @@ export function SessionGate({ children }: SessionGateProps) {
                 </select>
               </div>
               <div className="form-actions session-gate-actions">
-                <button type="submit" className="btn btn-primary">
-                  Entrar
+                <button type="submit" className="btn btn-primary" disabled={carregando}>
+                  {carregando ? "A entrar..." : "Entrar"}
                 </button>
               </div>
             </form>
