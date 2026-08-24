@@ -1,4 +1,5 @@
 import { createSupabaseRepository } from "../lib/supabaseRepository";
+import { supabase } from "../lib/supabase";
 import type {
   Notificacao,
   Decisao,
@@ -8,6 +9,8 @@ import type {
   RegistoInformal,
   Processo,
   Noticia,
+  Atividade,
+  AvaliacaoImpacto,
 } from "../types";
 
 // Instâncias partilhadas dos repositórios já ligados à Supabase real —
@@ -27,3 +30,10 @@ export const noticiasRepoAsync = createSupabaseRepository<Noticia>("noticias", [
   "dataPublicacao",
   "dataEntradaVigor",
 ]);
+export const atividadeRepoAsync = createSupabaseRepository<Atividade>("atividade", [], "quando");
+export const avaliacoesRepoAsync = createSupabaseRepository<AvaliacaoImpacto>("avaliacoes_impacto", [], "quando");
+
+export async function limparAtividade(): Promise<void> {
+  const { error } = await supabase.from("atividade").delete().not("id", "is", null);
+  if (error) throw new Error(`Erro ao limpar o registo de atividade: ${error.message}`);
+}

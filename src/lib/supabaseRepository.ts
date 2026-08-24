@@ -26,11 +26,12 @@ function normalizarOpcionais(obj: Record<string, unknown>, camposAdicionais: str
 
 export function createSupabaseRepository<T extends { id: string }>(
   tabela: string,
-  camposAnulaveis: string[] = []
+  camposAnulaveis: string[] = [],
+  colunaOrdenacao = "criado_em"
 ): AsyncRepository<T> {
   return {
     async list() {
-      const { data, error } = await supabase.from(tabela).select("*").order("criado_em", { ascending: false });
+      const { data, error } = await supabase.from(tabela).select("*").order(colunaOrdenacao, { ascending: false });
       if (error) throw new Error(`Erro ao ler "${tabela}": ${error.message}`);
       return (data ?? []).map((linha) => objetoParaCamelCase<T>(linha));
     },

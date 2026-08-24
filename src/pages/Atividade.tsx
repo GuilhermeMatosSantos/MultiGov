@@ -1,10 +1,13 @@
-import { useState } from "react";
-import { atividadeRepo, avaliacoesRepo } from "../data/repos";
+import { useEffect, useState } from "react";
+import { atividadeRepoAsync, avaliacoesRepoAsync, limparAtividade } from "../data/asyncRepos";
+import type { Atividade as AtividadeType, AvaliacaoImpacto } from "../types";
 import { FilterBar } from "../components/FilterBar";
 import { EmptyState } from "../components/EmptyState";
 import { distinctOptions } from "../components/ModulePage";
 import { confirmDialog } from "../lib/confirm";
 import { toast } from "../lib/toast";
+import { useIdentidade } from "../lib/session";
+import { podeEscrever } from "../lib/permissoes";
 
 const acaoLabel: Record<string, { texto: string; icon: string }> = {
   criar: { texto: "criou", icon: "🟢" },
@@ -13,16 +16,24 @@ const acaoLabel: Record<string, { texto: string; icon: string }> = {
 };
 
 export function Atividade() {
-  const [itens, setItens] = useState(() => atividadeRepo.list());
-  const avaliacoes = avaliacoesRepo.list();
+  const [identidade] = useIdentidade();
+  const podeLimpar = podeEscrever(identidade.nivel, "atividade");
+  const [itens, setItens] = useState<AtividadeType[]>([]);
+  const [avaliacoes, setAvaliacoes] = useState<AvaliacaoImpacto[]>([]);
   const [search, setSearch] = useState("");
   const [entidadeFiltro, setEntidadeFiltro] = useState("");
   const [acaoFiltro, setAcaoFiltro] = useState("");
   const [moduloFiltro, setModuloFiltro] = useState("");
 
-  function refresh() {
-    setItens(atividadeRepo.list());
+  async function refresh() {
+    setItens(await atividadeRepoAsync.list());
   }
+
+  useEffect(() => {
+    refresh();
+    avaliacoesRepoAsync.list().then(setAvaliacoes).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = itens
     .filter((a) => {
@@ -73,9 +84,14 @@ export function Atividade() {
       "Limpar"
     );
     if (!ok) return;
-    atividadeRepo.reset();
-    refresh();
-    toast("Registo de atividade limpo.", "info");
+    try {
+      await limparAtividade();
+      await refresh();
+      toast("Registo de atividade limpo.", "info");
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao limpar o registo. Tenta novamente.", "error");
+    }
   }
 
   return (
@@ -89,7 +105,7 @@ export function Atividade() {
             pode mudar de identidade a qualquer momento), mas dá visibilidade sobre a interação.
           </p>
         </div>
-        {itens.length > 0 && (
+        {itens.length > 0 && podeLimpar && (
           <button className="btn btn-ghost btn-danger" onClick={limparHistorico}>
             Limpar histórico
           </button>

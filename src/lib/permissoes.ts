@@ -46,6 +46,7 @@ const MODULOS_ESCRITA: Record<Camada, string[]> = {
     "monitorizacao-territorial",
     "memoria-projetos",
     "transparencia",
+    "atividade",
   ],
   territorio: ["processos", "registo-informal", "canal-horizontal"],
   supervisao: [],

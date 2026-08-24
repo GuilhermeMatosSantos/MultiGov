@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { avaliacoesRepo } from "../data/repos";
+import { avaliacoesRepoAsync } from "../data/asyncRepos";
 import { getIdentidade } from "../lib/session";
 import { newId } from "../lib/id";
 import { Modal } from "./Modal";
@@ -38,20 +38,25 @@ export function FeedbackImpacto({ colapsada }: Props) {
   const [open, setOpen] = useState(false);
   const [comentario, setComentario] = useState("");
 
-  function responder(ajudou: AvaliacaoImpacto["ajudou"]) {
+  async function responder(ajudou: AvaliacaoImpacto["ajudou"]) {
     const identidade = getIdentidade();
-    avaliacoesRepo.create({
-      id: newId(),
-      quando: new Date().toISOString(),
-      nome: identidade.nome || "Anónimo",
-      entidade: identidade.entidade || "—",
-      modulo: moduloAtual(location.pathname),
-      ajudou,
-      comentario,
-    });
-    setOpen(false);
-    setComentario("");
-    toast("Obrigado — o teu feedback ajuda a perceber se isto está mesmo a resolver o problema.");
+    try {
+      await avaliacoesRepoAsync.create({
+        id: newId(),
+        quando: new Date().toISOString(),
+        nome: identidade.nome || "Anónimo",
+        entidade: identidade.entidade || "—",
+        modulo: moduloAtual(location.pathname),
+        ajudou,
+        comentario,
+      });
+      setOpen(false);
+      setComentario("");
+      toast("Obrigado — o teu feedback ajuda a perceber se isto está mesmo a resolver o problema.");
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao enviar feedback. Tenta novamente.", "error");
+    }
   }
 
   return (

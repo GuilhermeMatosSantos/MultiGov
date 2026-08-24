@@ -1,4 +1,4 @@
-import { atividadeRepo } from "../data/repos";
+import { atividadeRepoAsync } from "../data/asyncRepos";
 import { getIdentidade } from "./session";
 import { newId } from "./id";
 import type { Atividade } from "../types";
@@ -6,13 +6,15 @@ import type { Atividade } from "../types";
 export function registarAtividade(acao: Atividade["acao"], modulo: string, itemLabel: string): void {
   const identidade = getIdentidade();
   if (!identidade.entidade) return;
-  atividadeRepo.create({
-    id: newId(),
-    quando: new Date().toISOString(),
-    nome: identidade.nome || "Sem nome",
-    entidade: identidade.entidade,
-    acao,
-    modulo,
-    itemLabel,
-  });
+  atividadeRepoAsync
+    .create({
+      id: newId(),
+      quando: new Date().toISOString(),
+      nome: identidade.nome || "Sem nome",
+      entidade: identidade.entidade,
+      acao,
+      modulo,
+      itemLabel,
+    })
+    .catch((err) => console.error("Erro ao registar atividade:", err));
 }
