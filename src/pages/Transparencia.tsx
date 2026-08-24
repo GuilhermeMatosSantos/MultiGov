@@ -1,7 +1,10 @@
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
+import { wrapSync } from "../lib/asyncRepository";
 import { decisoesRepo } from "../data/repos";
 import type { Decisao } from "../types";
+
+const decisoesRepoAsync = wrapSync(decisoesRepo);
 
 const estados: Decisao["estado"][] = ["Decidida", "Em execução", "Concluída"];
 
@@ -40,7 +43,7 @@ export function Transparencia() {
     <ModulePage<Decisao>
       title="Camada de transparência e disseminação"
       description="Não é o Kohesio (a plataforma oficial da Comissão para lista de operações e beneficiários — transparência de output). Este é o nicho que o Kohesio não cobre: transparência do processo de coordenação — quem decidiu o quê, entre que níveis, e quando."
-      repo={decisoesRepo}
+      repo={decisoesRepoAsync}
       columns={columns}
       fields={fields}
       searchKeys={["titulo", "entidade", "nivel"]}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import type { Repository } from "../lib/storage";
+import type { AsyncRepository } from "../lib/asyncRepository";
 import { newId } from "../lib/id";
 import { Modal } from "./Modal";
 import { EmptyState } from "./EmptyState";
@@ -57,7 +57,7 @@ export function distinctOptions<T>(items: T[], key: keyof T): SelectOption[] {
 interface ModulePageProps<T extends { id: string }> {
   title: string;
   description: string;
-  repo: Repository<T>;
+  repo: AsyncRepository<T>;
   columns: ColumnConfig<T>[];
   fields: FieldConfig<T>[];
   searchKeys: (keyof T)[];
@@ -66,8 +66,8 @@ interface ModulePageProps<T extends { id: string }> {
   defaultSortDirection?: "asc" | "desc";
   emptyItem: () => Omit<T, "id">;
   itemLabel: (item: T) => string;
-  extraActions?: (item: T, refresh: () => void) => React.ReactNode;
-  bulkActions?: (selecionados: T[], refresh: () => void, clearSelection: () => void) => React.ReactNode;
+  extraActions?: (item: T, refresh: () => Promise<void>) => React.ReactNode;
+  bulkActions?: (selecionados: T[], refresh: () => Promise<void>, clearSelection: () => void) => React.ReactNode;
   renderAbove?: (filtered: T[]) => React.ReactNode;
 }
 
@@ -92,7 +92,8 @@ export function ModulePage<T extends { id: string }>({
   const moduloRota = location.pathname.replace(/^\//, "").split("/")[0] || "painel";
   const podeEditar = podeEscrever(identidade.nivel, moduloRota);
   const { isFavorito, toggle: toggleFavorito } = useFavoritos();
-  const [items, setItems] = useState<T[]>(() => repo.list());
+  const [items, setItems] = useState<T[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(() => new URLSearchParams(location.search).get("q") ?? "");
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState<T | null>(null);
@@ -142,9 +143,31 @@ export function ModulePage<T extends { id: string }>({
     setFilterValues({});
   }
 
-  function refresh() {
-    setItems(repo.list());
+  async function refresh() {
+    const lista = await repo.list();
+    setItems(lista);
   }
+
+  useEffect(() => {
+    let cancelado = false;
+    setLoading(true);
+    repo
+      .list()
+      .then((lista) => {
+        if (!cancelado) setItems(lista);
+      })
+      .catch((err) => {
+        console.error(err);
+        toast("Erro ao carregar registos.", "error");
+      })
+      .finally(() => {
+        if (!cancelado) setLoading(false);
+      });
+    return () => {
+      cancelado = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repo]);
 
   function openCreate() {
     setEditing(null);
@@ -163,30 +186,40 @@ export function ModulePage<T extends { id: string }>({
     setEditing(null);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (editing) {
-      repo.update(editing.id, formData as Partial<T>);
-      toast("Alterações guardadas.");
-      registarAtividade("editar", title, itemLabel(editing));
-    } else {
-      const id = newId();
-      const criado = { id, ...formData } as T;
-      repo.create(criado);
-      toast("Novo registo criado.");
-      registarAtividade("criar", title, itemLabel(criado));
+    try {
+      if (editing) {
+        await repo.update(editing.id, formData as Partial<T>);
+        toast("Alterações guardadas.");
+        registarAtividade("editar", title, itemLabel(editing));
+      } else {
+        const id = newId();
+        const criado = { id, ...formData } as T;
+        await repo.create(criado);
+        toast("Novo registo criado.");
+        registarAtividade("criar", title, itemLabel(criado));
+      }
+      await refresh();
+      closeForm();
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao guardar. Tenta novamente.", "error");
     }
-    refresh();
-    closeForm();
   }
 
   async function handleDelete(item: T) {
     const ok = await confirmDialog(`Remover "${itemLabel(item)}"? Esta ação não pode ser desfeita.`, "Remover");
     if (!ok) return;
-    repo.remove(item.id);
-    refresh();
-    toast("Registo removido.", "info");
-    registarAtividade("remover", title, itemLabel(item));
+    try {
+      await repo.remove(item.id);
+      await refresh();
+      toast("Registo removido.", "info");
+      registarAtividade("remover", title, itemLabel(item));
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao remover. Tenta novamente.", "error");
+    }
   }
 
   function toggleSelected(id: string) {
@@ -225,11 +258,16 @@ export function ModulePage<T extends { id: string }>({
       "Remover"
     );
     if (!ok) return;
-    selecionados.forEach((item) => repo.remove(item.id));
-    clearSelection();
-    refresh();
-    toast(`${selecionados.length} registo(s) removido(s).`, "info");
-    registarAtividade("remover", title, `${selecionados.length} registo(s) em lote`);
+    try {
+      await Promise.all(selecionados.map((item) => repo.remove(item.id)));
+      clearSelection();
+      await refresh();
+      toast(`${selecionados.length} registo(s) removido(s).`, "info");
+      registarAtividade("remover", title, `${selecionados.length} registo(s) em lote`);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao remover registos. Tenta novamente.", "error");
+    }
   }
 
   return (
@@ -299,7 +337,9 @@ export function ModulePage<T extends { id: string }>({
         </div>
       )}
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <EmptyState message="A carregar registos..." />
+      ) : filtered.length === 0 ? (
         <EmptyState
           message={
             items.length === 0

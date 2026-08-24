@@ -1,7 +1,10 @@
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
+import { wrapSync } from "../lib/asyncRepository";
 import { projetosRepo } from "../data/repos";
 import type { Projeto } from "../types";
+
+const projetosRepoAsync = wrapSync(projetosRepo);
 
 const columns: ColumnConfig<Projeto>[] = [
   { key: "titulo", label: "Projeto" },
@@ -52,7 +55,7 @@ export function MemoriaProjetos() {
     <ModulePage<Projeto>
       title="Memória de projetos e boas práticas"
       description="Antes de fazer, ver o que já se fez. O que resultou, o que não resultou e em que condições é replicável — não faturas, mas lições estruturadas."
-      repo={projetosRepo}
+      repo={projetosRepoAsync}
       columns={columns}
       fields={fields}
       searchKeys={["titulo", "territorio", "programa"]}

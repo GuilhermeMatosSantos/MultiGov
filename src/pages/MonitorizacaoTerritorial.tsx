@@ -1,7 +1,10 @@
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
+import { wrapSync } from "../lib/asyncRepository";
 import { indicadoresRepo } from "../data/repos";
 import type { IndicadorTerritorial } from "../types";
+
+const indicadoresRepoAsync = wrapSync(indicadoresRepo);
 
 const tiposTerritorio: IndicadorTerritorial["tipoTerritorio"][] = [
   "Município",
@@ -112,7 +115,7 @@ export function MonitorizacaoTerritorial() {
     <ModulePage<IndicadorTerritorial>
       title="Painel de monitorização territorial"
       description="Indicadores por território cruzando dimensões económica, social, ambiental e cultural, para fundamentar decisões e comunicar resultados."
-      repo={indicadoresRepo}
+      repo={indicadoresRepoAsync}
       columns={columns}
       fields={fields}
       searchKeys={["territorio", "indicador", "dimensao"]}

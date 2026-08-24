@@ -8,6 +8,8 @@ import { NotificacoesBrowserToggle } from "./NotificacoesBrowserToggle";
 import { LogoMark } from "./LogoMark";
 import { useTema } from "../lib/theme";
 import { verificarENotificar } from "../lib/notificacoesBrowser";
+import { sincronizarPerfilSupabase } from "../lib/supabaseAuth";
+import { getIdentidade } from "../lib/session";
 import logoPat2030 from "../assets/pat2030-logo.svg";
 import logoPortugal2030 from "../assets/portugal2030-logo.png";
 import logoUe from "../assets/ue-cofinanciado-logo.png";
@@ -47,6 +49,10 @@ export function Layout() {
     verificarENotificar();
     const intervalo = setInterval(verificarENotificar, 5 * 60 * 1000);
     return () => clearInterval(intervalo);
+  }, []);
+
+  useEffect(() => {
+    void sincronizarPerfilSupabase(getIdentidade());
   }, []);
 
   useEffect(() => {

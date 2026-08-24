@@ -1,8 +1,11 @@
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
+import { wrapSync } from "../lib/asyncRepository";
 import { registoInformalRepo, processosRepo } from "../data/repos";
 import type { RegistoInformal as RegistoInformalType } from "../types";
 import { useIdentidade } from "../lib/session";
+
+const registoInformalRepoAsync = wrapSync(registoInformalRepo);
 
 const tipos: RegistoInformalType["tipo"][] = [
   "Telefonema",
@@ -83,7 +86,7 @@ export function RegistoInformal() {
     <ModulePage<RegistoInformalType>
       title="Registo leve do informal"
       description="Transforma um telefonema ou decisão informal numa nota associada ao processo — rastreabilidade sem a burocracia do ofício ou da ata."
-      repo={registoInformalRepo}
+      repo={registoInformalRepoAsync}
       columns={columns}
       fields={fields}
       searchKeys={["processoAssociado", "entidade", "tipo"]}

@@ -1,11 +1,14 @@
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
+import { wrapSync } from "../lib/asyncRepository";
 import { notificacoesRepo, processosRepo } from "../data/repos";
 import type { Notificacao } from "../types";
 import { useIdentidade } from "../lib/session";
 import { UrgencyBadge } from "../components/UrgencyBadge";
 import { useMarkSeenOnMount, isNovo } from "../lib/lastSeen";
 import { toast } from "../lib/toast";
+
+const notificacoesRepoAsync = wrapSync(notificacoesRepo);
 
 const tipos: Notificacao["tipo"][] = [
   "Regra",
@@ -118,7 +121,7 @@ export function Notificacoes() {
     <ModulePage<Notificacao>
       title="Feed de notificações proativas"
       description="Alertas quando muda uma orientação, regra, aviso ou prazo. O ponto azul marca as notificações relevantes para a entidade com que estás a navegar."
-      repo={notificacoesRepo}
+      repo={notificacoesRepoAsync}
       columns={columns}
       fields={fields}
       searchKeys={["titulo", "entidadeOrigem", "tipo"]}
@@ -131,9 +134,9 @@ export function Notificacoes() {
             className="btn btn-ghost btn-icon"
             title="Marcar como lida"
             aria-label={`Marcar "${n.titulo}" como lida`}
-            onClick={() => {
-              notificacoesRepo.update(n.id, { lida: true });
-              refresh();
+            onClick={async () => {
+              await notificacoesRepoAsync.update(n.id, { lida: true });
+              await refresh();
               toast("Notificação marcada como lida.");
             }}
           >
@@ -147,9 +150,9 @@ export function Notificacoes() {
         return (
           <button
             className="btn btn-ghost"
-            onClick={() => {
-              porLer.forEach((n) => notificacoesRepo.update(n.id, { lida: true }));
-              refresh();
+            onClick={async () => {
+              await Promise.all(porLer.map((n) => notificacoesRepoAsync.update(n.id, { lida: true })));
+              await refresh();
               clearSelection();
               toast(`${porLer.length} notificação(ões) marcada(s) como lida(s).`);
             }}

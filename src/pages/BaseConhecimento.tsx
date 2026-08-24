@@ -1,7 +1,10 @@
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
+import { wrapSync } from "../lib/asyncRepository";
 import { faqRepo } from "../data/repos";
 import type { FAQEntry } from "../types";
+
+const faqRepoAsync = wrapSync(faqRepo);
 
 const columns: ColumnConfig<FAQEntry>[] = [
   {
@@ -50,7 +53,7 @@ export function BaseConhecimento() {
     <ModulePage<FAQEntry>
       title="Base de conhecimento e FAQ"
       description="Repositório pesquisável de esclarecimentos e decisões-tipo, para que a mesma dúvida tenha a mesma resposta entre técnicos e regiões."
-      repo={faqRepo}
+      repo={faqRepoAsync}
       columns={columns}
       fields={fields}
       searchKeys={["pergunta", "categoria", "programaRelacionado", "tags"]}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Identidade, PerfilIdentidade } from "../types";
 import { newId } from "./id";
+import { sincronizarPerfilSupabase } from "./supabaseAuth";
 
 const KEY = "multigov.identidade";
 const PERFIS_KEY = "multigov.perfis";
@@ -30,6 +31,7 @@ export function getIdentidade(): Identidade {
 export function setIdentidade(identidade: Identidade): void {
   localStorage.setItem(KEY, JSON.stringify(identidade));
   window.dispatchEvent(new CustomEvent("multigov:identidade", { detail: identidade }));
+  void sincronizarPerfilSupabase(identidade);
 }
 
 export function useIdentidade(): [Identidade, (identidade: Identidade) => void] {
