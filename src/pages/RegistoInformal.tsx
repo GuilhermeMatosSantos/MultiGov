@@ -92,7 +92,7 @@ export function RegistoInformal() {
       ajuda={{
         oQueE: "Uma nota leve associada a um processo, para registar um telefonema ou uma decisão informal.",
         paraQueServe: "Para haver rastreabilidade de decisões tomadas fora dos canais formais, sem a burocracia de um ofício ou de uma ata.",
-        comoUsar: "Liga o registo a um processo existente e classifica-o como \"A confirmar formalmente\" quando precisar de ser regularizado depois — define um prazo para isso não ficar esquecido.",
+        comoUsar: "Liga o registo a um processo existente e classifica-o como \"A confirmar formalmente\" quando precisar de ser regularizado depois. Define um prazo para isso não ficar esquecido.",
       }}
       repo={registoInformalRepoAsync}
       columns={columns}

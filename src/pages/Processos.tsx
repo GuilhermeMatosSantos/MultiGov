@@ -154,7 +154,7 @@ export function Processos() {
             Processos e candidaturas
             <ModuleHelp
               titulo="Processos e candidaturas"
-              oQueE="A ficha de cada processo ou candidatura — o fio condutor entre notificações, registos informais e avisos que lhe dizem respeito."
+              oQueE="A ficha de cada processo ou candidatura, o fio condutor entre notificações, registos informais e avisos que lhe dizem respeito."
               paraQueServe="Para acompanhares uma candidatura do início ao fim num único sítio, em vez de teres de reconstruir a sua história a partir de vários módulos separados."
               comoUsar="Cria um processo e liga-lhe um aviso de origem. Sempre que registares uma notificação ou uma nota informal associada, a linha do tempo do processo atualiza-se automaticamente."
             />

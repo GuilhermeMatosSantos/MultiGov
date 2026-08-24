@@ -186,9 +186,9 @@ export function Interlocutores() {
             Diretório vivo de interlocutores
             <ModuleHelp
               titulo="Diretório vivo de interlocutores"
-              oQueE="O diretório de quem é quem em cada entidade e nível — o interlocutor atual para cada área de responsabilidade, com contacto direto."
-              paraQueServe="Para saberes sempre a quem te dirigir, mesmo quando há rotatividade de pessoal — uma das principais causas de perda de conhecimento institucional entre entidades."
-              comoUsar='Ao mudar de titular, usa "Substituir titular" em vez de editar o registo — o anterior fica arquivado no histórico com o que sabia sobre processos em curso, não se perde.'
+              oQueE="O diretório de quem é quem em cada entidade e nível, com o interlocutor atual para cada área de responsabilidade e contacto direto."
+              paraQueServe="Para saberes sempre a quem te dirigir, mesmo quando há rotatividade de pessoal, uma das principais causas de perda de conhecimento institucional entre entidades."
+              comoUsar='Ao mudar de titular, usa "Substituir titular" em vez de editar o registo. O anterior fica arquivado no histórico com o que sabia sobre processos em curso, não se perde.'
             />
           </h1>
           <p className="page-description">

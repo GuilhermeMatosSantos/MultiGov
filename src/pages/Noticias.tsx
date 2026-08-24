@@ -246,7 +246,7 @@ export function Noticias() {
             <ModuleHelp
               titulo="Notícias & Regulamentação"
               oQueE="Resumos de alterações regulamentares, novas orientações e prazos relevantes vindos da Comissão Europeia, do governo ou das autoridades de gestão."
-              paraQueServe="Para consultares rapidamente o essencial de uma mudança sem teres de ir à fonte original — e para converteres uma notícia importante numa notificação interna dirigida às entidades afetadas."
+              paraQueServe="Para consultares rapidamente o essencial de uma mudança sem teres de ir à fonte original, e para converteres uma notícia importante numa notificação interna dirigida às entidades afetadas."
               comoUsar='Cola um URL no campo de referência para pré-preencher título, resumo e imagem automaticamente. Usa "→ Notificação" para propagar a novidade ao módulo de Notificações.'
             />
           </h1>

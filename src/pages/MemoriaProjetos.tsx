@@ -59,8 +59,8 @@ export function MemoriaProjetos() {
       description="Antes de fazer, ver o que já se fez. O que resultou, o que não resultou e em que condições é replicável — não faturas, mas lições estruturadas."
       ajuda={{
         oQueE: "Um repositório do que resultou e do que não resultou em projetos e avisos anteriores, por território e programa.",
-        paraQueServe: "Para as lições aprendidas deixarem de se perder quando um aviso semelhante é desenhado de raiz — sobretudo as condições que tornam uma boa prática replicável ou não noutro contexto.",
-        comoUsar: "Preenche sempre \"condições de replicabilidade\", não só o resultado — é a parte que costuma faltar e que mais ajuda quem está a decidir se algo funciona no seu território.",
+        paraQueServe: "Para as lições aprendidas deixarem de se perder quando um aviso semelhante é desenhado de raiz, sobretudo as condições que tornam uma boa prática replicável ou não noutro contexto.",
+        comoUsar: "Preenche sempre \"condições de replicabilidade\", não só o resultado. É a parte que costuma faltar e que mais ajuda quem está a decidir se algo funciona no seu território.",
       }}
       repo={projetosRepoAsync}
       columns={columns}

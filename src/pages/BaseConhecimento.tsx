@@ -57,7 +57,7 @@ export function BaseConhecimento() {
       description="Repositório pesquisável de esclarecimentos e decisões-tipo, para que a mesma dúvida tenha a mesma resposta entre técnicos e regiões."
       ajuda={{
         oQueE: "Um repositório pesquisável de esclarecimentos e decisões-tipo sobre dúvidas recorrentes.",
-        paraQueServe: "Para a mesma dúvida ter sempre a mesma resposta, independentemente de quem a coloca ou em que região — evita interpretações divergentes entre técnicos e entidades.",
+        paraQueServe: "Para a mesma dúvida ter sempre a mesma resposta, independentemente de quem a coloca ou em que região, evitando interpretações divergentes entre técnicos e entidades.",
         comoUsar: "Marca uma resposta como \"vinculativa\" quando resolve um conflito de interpretação entre entidades, para lhe dar peso de arbitragem oficial.",
       }}
       repo={faqRepoAsync}

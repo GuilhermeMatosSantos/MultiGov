@@ -178,7 +178,7 @@ export function CanalHorizontal() {
               titulo="Canal horizontal entre pares"
               oQueE="Fóruns de par-a-par entre entidades homólogas (CIM–CIM, AG–AG, CCDR–CCDR) para partilha de boas práticas ou pedidos de intercâmbio."
               paraQueServe="Para tornar rastreável e institucional a rede informal que já existe entre pares, inspirado no modelo real TAIEX-REGIO Peer2Peer da Comissão Europeia."
-              comoUsar='Ao criar um tópico, escolhe "Pedido de intercâmbio" se quiseres estruturar formato e objetivo — e documenta o resultado no final, para ficar disponível para outras entidades no mesmo caso.'
+              comoUsar='Ao criar um tópico, escolhe "Pedido de intercâmbio" se quiseres estruturar formato e objetivo. Documenta o resultado no final, para ficar disponível para outras entidades no mesmo caso.'
             />
           </h1>
           <p className="page-description">

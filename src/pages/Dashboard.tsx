@@ -398,8 +398,8 @@ export function Dashboard() {
             Painel geral
             <ModuleHelp
               titulo="Painel geral"
-              oQueE="A página inicial da aplicação — um resumo do que está a acontecer em todos os módulos, personalizado consoante a tua entidade e áreas de interesse."
-              paraQueServe="Para começares por saber o que precisa da tua atenção, sem teres de abrir módulo a módulo — prazos a vencer, confirmações pendentes, o que foi publicado recentemente que te diz respeito."
+              oQueE="A página inicial da aplicação, com um resumo do que está a acontecer em todos os módulos, personalizado consoante a tua entidade e áreas de interesse."
+              paraQueServe="Para começares por saber o que precisa da tua atenção, sem teres de abrir módulo a módulo: prazos a vencer, confirmações pendentes, o que foi publicado recentemente que te diz respeito."
               comoUsar="Define a tua entidade e áreas de interesse (temas, programas, territórios) no topo para o resumo ficar dirigido a ti. Clica em qualquer item para ires diretamente ao registo completo."
             />
           </h1>

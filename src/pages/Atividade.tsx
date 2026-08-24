@@ -104,7 +104,7 @@ export function Atividade() {
             <ModuleHelp
               titulo="Atividade"
               oQueE="O registo cronológico de tudo o que foi criado, editado ou removido em qualquer módulo, por quem e quando."
-              paraQueServe="Dá visibilidade sobre quem está a usar a aplicação e como — útil para perceber padrões de participação entre entidades e para recolher feedback de impacto sobre se a ferramenta está mesmo a ajudar."
+              paraQueServe="Dá visibilidade sobre quem está a usar a aplicação e como, útil para perceber padrões de participação entre entidades e para recolher feedback de impacto sobre se a ferramenta está mesmo a ajudar."
               comoUsar="Filtra por entidade, ação ou módulo para encontrar uma alteração específica. Perfis de coordenação podem limpar o histórico quando necessário."
             />
           </h1>
