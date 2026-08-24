@@ -4,9 +4,10 @@ interface ModalProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  className?: string;
 }
 
-export function Modal({ title, onClose, children }: ModalProps) {
+export function Modal({ title, onClose, children, className }: ModalProps) {
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -22,7 +23,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal"
+        className={`modal${className ? ` ${className}` : ""}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

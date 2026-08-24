@@ -26,7 +26,7 @@ export function ModuleHelp({ titulo, oQueE, paraQueServe, comoUsar }: ModuleHelp
         ⓘ
       </button>
       {open && (
-        <Modal title={titulo} onClose={() => setOpen(false)}>
+        <Modal title={titulo} onClose={() => setOpen(false)} className="module-help-modal">
           <div className="module-help-content">
             <h3>O que é</h3>
             <p>{oQueE}</p>
