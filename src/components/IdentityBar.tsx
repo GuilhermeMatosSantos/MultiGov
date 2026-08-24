@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useIdentidade, usePerfis, salvarPerfil, removerPerfil } from "../lib/session";
+import { sairConta } from "../lib/auth";
 import type { Nivel } from "../types";
 import { Modal } from "./Modal";
 import { toast } from "../lib/toast";
@@ -59,6 +60,12 @@ export function IdentityBar() {
     toast("Perfil removido.", "info");
   }
 
+  async function handleSair() {
+    const ok = await confirmDialog("Terminar sessão?", "Sair");
+    if (!ok) return;
+    await sairConta();
+  }
+
   const definida = Boolean(identidade.entidade);
   const perfilAtivoId = perfis.find(
     (p) => p.entidade === identidade.entidade && p.nivel === identidade.nivel && p.nome === identidade.nome
@@ -89,6 +96,11 @@ export function IdentityBar() {
           <button className="btn btn-ghost" onClick={openModal}>
             {definida ? "Alterar" : "Definir identidade"}
           </button>
+          {definida && (
+            <button className="btn btn-ghost" onClick={handleSair}>
+              Sair
+            </button>
+          )}
         </div>
       </div>
 
