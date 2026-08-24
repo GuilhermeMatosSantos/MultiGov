@@ -54,9 +54,9 @@ export function BaseConhecimento() {
   return (
     <ModulePage<FAQEntry>
       title="Base de conhecimento e FAQ"
-      description="Repositório pesquisável de esclarecimentos e decisões-tipo, para que a mesma dúvida tenha a mesma resposta entre técnicos e regiões."
+      description="Repositório pesquisável de esclarecimentos e decisões de referência, para que a mesma dúvida tenha a mesma resposta entre técnicos e regiões."
       ajuda={{
-        oQueE: "Um repositório pesquisável de esclarecimentos e decisões-tipo sobre dúvidas recorrentes.",
+        oQueE: "Um repositório pesquisável de esclarecimentos e decisões de referência sobre dúvidas recorrentes.",
         paraQueServe: "Para a mesma dúvida ter sempre a mesma resposta, independentemente de quem a coloca ou em que região, evitando interpretações divergentes entre técnicos e entidades.",
         comoUsar: "Marca uma resposta como \"vinculativa\" quando resolve um conflito de interpretação entre entidades, para lhe dar peso de arbitragem oficial.",
       }}
