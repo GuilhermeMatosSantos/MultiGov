@@ -117,7 +117,7 @@ h1, h2, h3 {
 
 .module-help-content p {
   font-size: 13.5px;
-  color: var(--color-text);
+  color: var(--color-text-muted);
   line-height: 1.5;
   margin: 0;
 }
