@@ -55,6 +55,7 @@ export function Processos() {
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [registos, setRegistos] = useState<RegistoInformal[]>([]);
   const [avisos, setAvisos] = useState<Aviso[]>([]);
+  const [loading, setLoading] = useState(true);
 
   async function refresh() {
     const lista = await processosRepoAsync.list();
@@ -63,7 +64,7 @@ export function Processos() {
   }
 
   useEffect(() => {
-    refresh();
+    refresh().finally(() => setLoading(false));
     notificacoesRepoAsync.list().then(setNotificacoes).catch(() => {});
     registoInformalRepoAsync.list().then(setRegistos).catch(() => {});
     listarAvisos().then(setAvisos).catch(() => {});
@@ -193,9 +194,11 @@ export function Processos() {
           {filtered.length === 0 && (
             <EmptyState
               message={
-                processos.length === 0
-                  ? "Sem processos ainda."
-                  : "Nenhum processo corresponde à pesquisa ou aos filtros aplicados."
+                loading
+                  ? "A carregar processos..."
+                  : processos.length === 0
+                    ? "Sem processos ainda."
+                    : "Nenhum processo corresponde à pesquisa ou aos filtros aplicados."
               }
             />
           )}

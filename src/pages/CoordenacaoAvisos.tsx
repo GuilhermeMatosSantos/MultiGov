@@ -57,6 +57,7 @@ export function CoordenacaoAvisos() {
   const [formData, setFormData] = useState(emptyForm());
   const [novaEntidade, setNovaEntidade] = useState("");
   const [novoComentario, setNovoComentario] = useState("");
+  const [loading, setLoading] = useState(true);
 
   async function refresh() {
     const lista = await listarAvisos();
@@ -65,7 +66,7 @@ export function CoordenacaoAvisos() {
   }
 
   useEffect(() => {
-    refresh();
+    refresh().finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -281,9 +282,11 @@ export function CoordenacaoAvisos() {
             {filtered.length === 0 && (
               <EmptyState
                 message={
-                  avisos.length === 0
-                    ? "Sem avisos ainda."
-                    : "Nenhum aviso corresponde à pesquisa ou aos filtros aplicados."
+                  loading
+                    ? "A carregar avisos..."
+                    : avisos.length === 0
+                      ? "Sem avisos ainda."
+                      : "Nenhum aviso corresponde à pesquisa ou aos filtros aplicados."
                 }
               />
             )}

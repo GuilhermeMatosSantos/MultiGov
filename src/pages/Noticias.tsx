@@ -78,13 +78,14 @@ export function Noticias() {
     programas: [],
     territorios: [],
   });
+  const [loading, setLoading] = useState(true);
 
   async function refresh() {
     setNoticias(await noticiasRepoAsync.list());
   }
 
   useEffect(() => {
-    refresh();
+    refresh().finally(() => setLoading(false));
     Promise.all([temasDisponiveis(), programasDisponiveis(), territoriosDisponiveis()])
       .then(([temas, programas, territorios]) => setSugestoes({ temas, programas, territorios }))
       .catch(() => {});
@@ -276,9 +277,11 @@ export function Noticias() {
       {filtered.length === 0 ? (
         <EmptyState
           message={
-            noticias.length === 0
-              ? "Sem notícias ainda."
-              : "Nenhuma notícia corresponde à pesquisa ou aos filtros aplicados."
+            loading
+              ? "A carregar notícias..."
+              : noticias.length === 0
+                ? "Sem notícias ainda."
+                : "Nenhuma notícia corresponde à pesquisa ou aos filtros aplicados."
           }
         />
       ) : (

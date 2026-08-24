@@ -51,13 +51,14 @@ export function CanalHorizontal() {
     };
   });
   const [novoResultado, setNovoResultado] = useState("");
+  const [loading, setLoading] = useState(true);
 
   async function refresh() {
     setTopicos(await listarTopicos());
   }
 
   useEffect(() => {
-    refresh();
+    refresh().finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -214,9 +215,11 @@ export function CanalHorizontal() {
           {filtered.length === 0 && (
             <EmptyState
               message={
-                topicos.length === 0
-                  ? "Sem tópicos ainda."
-                  : "Nenhum tópico corresponde à pesquisa ou aos filtros aplicados."
+                loading
+                  ? "A carregar tópicos..."
+                  : topicos.length === 0
+                    ? "Sem tópicos ainda."
+                    : "Nenhum tópico corresponde à pesquisa ou aos filtros aplicados."
               }
             />
           )}

@@ -72,13 +72,14 @@ export function Interlocutores() {
   const [historicoAberto, setHistoricoAberto] = useState<Interlocutor | null>(null);
   const [substituicaoAlvo, setSubstituicaoAlvo] = useState<Interlocutor | null>(null);
   const [substituicaoForm, setSubstituicaoForm] = useState(emptySubstituicao());
+  const [loading, setLoading] = useState(true);
 
   async function refresh() {
     setItems(await listarInterlocutores());
   }
 
   useEffect(() => {
-    refresh();
+    refresh().finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -220,9 +221,11 @@ export function Interlocutores() {
       {filtered.length === 0 ? (
         <EmptyState
           message={
-            items.length === 0
-              ? "Sem registos. Cria o primeiro."
-              : "Nenhum registo corresponde à pesquisa ou aos filtros aplicados."
+            loading
+              ? "A carregar registos..."
+              : items.length === 0
+                ? "Sem registos. Cria o primeiro."
+                : "Nenhum registo corresponde à pesquisa ou aos filtros aplicados."
           }
         />
       ) : (
