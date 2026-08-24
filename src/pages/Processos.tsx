@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { avisosRepo } from "../data/repos";
 import { processosRepoAsync, notificacoesRepoAsync, registoInformalRepoAsync } from "../data/asyncRepos";
-import type { Notificacao, Processo, RegistoInformal } from "../types";
+import { listarAvisos } from "../lib/avisosRepository";
+import type { Aviso, Notificacao, Processo, RegistoInformal } from "../types";
 import { Modal } from "../components/Modal";
 import { EmptyState } from "../components/EmptyState";
 import { FilterBar } from "../components/FilterBar";
@@ -53,8 +53,7 @@ export function Processos() {
   const [formData, setFormData] = useState<Omit<Processo, "id">>(emptyForm());
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [registos, setRegistos] = useState<RegistoInformal[]>([]);
-
-  const avisos = avisosRepo.list();
+  const [avisos, setAvisos] = useState<Aviso[]>([]);
 
   async function refresh() {
     const lista = await processosRepoAsync.list();
@@ -66,6 +65,7 @@ export function Processos() {
     refresh();
     notificacoesRepoAsync.list().then(setNotificacoes).catch(() => {});
     registoInformalRepoAsync.list().then(setRegistos).catch(() => {});
+    listarAvisos().then(setAvisos).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { faqRepo, avisosRepo, processosRepo, indicadoresRepo, projetosRepo, noticiasRepo } from "../data/repos";
+import {
+  faqRepoAsync,
+  processosRepoAsync,
+  indicadoresRepoAsync,
+  projetosRepoAsync,
+  noticiasRepoAsync,
+} from "../data/asyncRepos";
+import { listarAvisos } from "./avisosRepository";
 
 export interface Interesses {
   temas: string[];
@@ -55,26 +62,34 @@ function distinctStrings(values: string[]): string[] {
   return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, "pt"));
 }
 
-export function temasDisponiveis(): string[] {
+export async function temasDisponiveis(): Promise<string[]> {
+  const [faq, noticias] = await Promise.all([faqRepoAsync.list(), noticiasRepoAsync.list()]);
+  return distinctStrings([...faq.map((f) => f.categoria), ...noticias.flatMap((n) => n.temas)]);
+}
+
+export async function programasDisponiveis(): Promise<string[]> {
+  const [avisos, processos, noticias] = await Promise.all([
+    listarAvisos(),
+    processosRepoAsync.list(),
+    noticiasRepoAsync.list(),
+  ]);
   return distinctStrings([
-    ...faqRepo.list().map((f) => f.categoria),
-    ...noticiasRepo.list().flatMap((n) => n.temas),
+    ...avisos.map((a) => a.programa),
+    ...processos.map((p) => p.programa),
+    ...noticias.flatMap((n) => n.programas),
   ]);
 }
 
-export function programasDisponiveis(): string[] {
-  return distinctStrings([
-    ...avisosRepo.list().map((a) => a.programa),
-    ...processosRepo.list().map((p) => p.programa),
-    ...noticiasRepo.list().flatMap((n) => n.programas),
+export async function territoriosDisponiveis(): Promise<string[]> {
+  const [indicadores, projetos, noticias] = await Promise.all([
+    indicadoresRepoAsync.list(),
+    projetosRepoAsync.list(),
+    noticiasRepoAsync.list(),
   ]);
-}
-
-export function territoriosDisponiveis(): string[] {
   return distinctStrings([
-    ...indicadoresRepo.list().map((i) => i.territorio),
-    ...projetosRepo.list().map((p) => p.territorio),
-    ...noticiasRepo.list().flatMap((n) => n.territorios),
+    ...indicadores.map((i) => i.territorio),
+    ...projetos.map((p) => p.territorio),
+    ...noticias.flatMap((n) => n.territorios),
   ]);
 }
 

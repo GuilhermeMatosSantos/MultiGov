@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
-import { registoInformalRepoAsync } from "../data/asyncRepos";
-import { processosRepo } from "../data/repos";
-import type { RegistoInformal as RegistoInformalType } from "../types";
+import { registoInformalRepoAsync, processosRepoAsync } from "../data/asyncRepos";
+import type { Processo, RegistoInformal as RegistoInformalType } from "../types";
 import { useIdentidade } from "../lib/session";
 
 const tipos: RegistoInformalType["tipo"][] = [
@@ -17,11 +16,12 @@ const estados: NonNullable<RegistoInformalType["estado"]>[] = ["A confirmar form
 
 export function RegistoInformal() {
   const [identidade] = useIdentidade();
-  const processos = processosRepo.list();
+  const [processos, setProcessos] = useState<Processo[]>([]);
   const [registosAtuais, setRegistosAtuais] = useState<RegistoInformalType[]>([]);
 
   useEffect(() => {
     registoInformalRepoAsync.list().then(setRegistosAtuais).catch(() => {});
+    processosRepoAsync.list().then(setProcessos).catch(() => {});
   }, []);
 
   function processoTitulo(processoId: string): string {

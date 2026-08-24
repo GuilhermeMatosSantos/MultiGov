@@ -72,6 +72,11 @@ export function Noticias() {
   const [formData, setFormData] = useState<NoticiaForm>(emptyForm());
   const [imagemProcessando, setImagemProcessando] = useState(false);
   const [preVisualizando, setPreVisualizando] = useState(false);
+  const [sugestoes, setSugestoes] = useState<{ temas: string[]; programas: string[]; territorios: string[] }>({
+    temas: [],
+    programas: [],
+    territorios: [],
+  });
 
   async function refresh() {
     setNoticias(await noticiasRepoAsync.list());
@@ -79,6 +84,9 @@ export function Noticias() {
 
   useEffect(() => {
     refresh();
+    Promise.all([temasDisponiveis(), programasDisponiveis(), territoriosDisponiveis()])
+      .then(([temas, programas, territorios]) => setSugestoes({ temas, programas, territorios }))
+      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -430,7 +438,7 @@ export function Noticias() {
               <TagInput
                 value={formData.temas}
                 onChange={(next) => setFormData((p) => ({ ...p, temas: next }))}
-                suggestions={temasDisponiveis()}
+                suggestions={sugestoes.temas}
               />
             </div>
             <div className="form-field form-field-full">
@@ -438,7 +446,7 @@ export function Noticias() {
               <TagInput
                 value={formData.programas}
                 onChange={(next) => setFormData((p) => ({ ...p, programas: next }))}
-                suggestions={programasDisponiveis()}
+                suggestions={sugestoes.programas}
               />
             </div>
             <div className="form-field form-field-full">
@@ -446,7 +454,7 @@ export function Noticias() {
               <TagInput
                 value={formData.territorios}
                 onChange={(next) => setFormData((p) => ({ ...p, territorios: next }))}
-                suggestions={territoriosDisponiveis()}
+                suggestions={sugestoes.territorios}
               />
             </div>
 

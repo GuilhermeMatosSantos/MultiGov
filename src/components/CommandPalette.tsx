@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  interlocutoresRepo,
-  notificacoesRepo,
-  faqRepo,
-  avisosRepo,
-  registoInformalRepo,
-  indicadoresRepo,
-  decisoesRepo,
-  topicosRepo,
-  processosRepo,
-  projetosRepo,
-  noticiasRepo,
-} from "../data/repos";
+  notificacoesRepoAsync,
+  faqRepoAsync,
+  registoInformalRepoAsync,
+  indicadoresRepoAsync,
+  decisoesRepoAsync,
+  processosRepoAsync,
+  projetosRepoAsync,
+  noticiasRepoAsync,
+} from "../data/asyncRepos";
+import { listarInterlocutores } from "../lib/interlocutoresRepository";
+import { listarAvisos } from "../lib/avisosRepository";
+import { listarTopicos } from "../lib/topicosRepository";
 
 interface Result {
   key: string;
@@ -24,10 +24,25 @@ interface Result {
   selectId?: string;
 }
 
-function buildIndex(): Result[] {
+async function buildIndex(): Promise<Result[]> {
   const results: Result[] = [];
 
-  processosRepo.list().forEach((p) =>
+  const [processos, interlocutores, notificacoes, faq, avisos, registos, indicadores, decisoes, topicos, noticias, projetos] =
+    await Promise.all([
+      processosRepoAsync.list(),
+      listarInterlocutores(),
+      notificacoesRepoAsync.list(),
+      faqRepoAsync.list(),
+      listarAvisos(),
+      registoInformalRepoAsync.list(),
+      indicadoresRepoAsync.list(),
+      decisoesRepoAsync.list(),
+      listarTopicos(),
+      noticiasRepoAsync.list(),
+      projetosRepoAsync.list(),
+    ]);
+
+  processos.forEach((p) =>
     results.push({
       key: `processo-${p.id}`,
       module: "Processos",
@@ -38,7 +53,7 @@ function buildIndex(): Result[] {
       selectId: p.id,
     })
   );
-  interlocutoresRepo.list().forEach((i) =>
+  interlocutores.forEach((i) =>
     results.push({
       key: `interlocutor-${i.id}`,
       module: "Interlocutores",
@@ -48,7 +63,7 @@ function buildIndex(): Result[] {
       to: `/interlocutores?q=${encodeURIComponent(i.nome)}`,
     })
   );
-  notificacoesRepo.list().forEach((n) =>
+  notificacoes.forEach((n) =>
     results.push({
       key: `notificacao-${n.id}`,
       module: "Notificações",
@@ -58,7 +73,7 @@ function buildIndex(): Result[] {
       to: `/notificacoes?q=${encodeURIComponent(n.titulo)}`,
     })
   );
-  faqRepo.list().forEach((f) =>
+  faq.forEach((f) =>
     results.push({
       key: `faq-${f.id}`,
       module: "Base de Conhecimento",
@@ -68,7 +83,7 @@ function buildIndex(): Result[] {
       to: `/base-conhecimento?q=${encodeURIComponent(f.pergunta)}`,
     })
   );
-  avisosRepo.list().forEach((a) =>
+  avisos.forEach((a) =>
     results.push({
       key: `aviso-${a.id}`,
       module: "Coordenação de Avisos",
@@ -79,7 +94,7 @@ function buildIndex(): Result[] {
       selectId: a.id,
     })
   );
-  registoInformalRepo.list().forEach((r) =>
+  registos.forEach((r) =>
     results.push({
       key: `registo-${r.id}`,
       module: "Registo do Informal",
@@ -89,7 +104,7 @@ function buildIndex(): Result[] {
       to: `/registo-informal?q=${encodeURIComponent(r.processoAssociado || r.entidade)}`,
     })
   );
-  indicadoresRepo.list().forEach((i) =>
+  indicadores.forEach((i) =>
     results.push({
       key: `indicador-${i.id}`,
       module: "Monitorização Territorial",
@@ -99,7 +114,7 @@ function buildIndex(): Result[] {
       to: `/monitorizacao-territorial?q=${encodeURIComponent(i.territorio)}`,
     })
   );
-  decisoesRepo.list().forEach((d) =>
+  decisoes.forEach((d) =>
     results.push({
       key: `decisao-${d.id}`,
       module: "Transparência",
@@ -109,7 +124,7 @@ function buildIndex(): Result[] {
       to: `/transparencia?q=${encodeURIComponent(d.titulo)}`,
     })
   );
-  topicosRepo.list().forEach((t) =>
+  topicos.forEach((t) =>
     results.push({
       key: `topico-${t.id}`,
       module: "Canal Horizontal",
@@ -120,7 +135,7 @@ function buildIndex(): Result[] {
       selectId: t.id,
     })
   );
-  noticiasRepo.list().forEach((n) =>
+  noticias.forEach((n) =>
     results.push({
       key: `noticia-${n.id}`,
       module: "Notícias & Regulamentação",
@@ -130,7 +145,7 @@ function buildIndex(): Result[] {
       to: `/noticias?q=${encodeURIComponent(n.titulo)}`,
     })
   );
-  projetosRepo.list().forEach((p) =>
+  projetos.forEach((p) =>
     results.push({
       key: `projeto-${p.id}`,
       module: "Memória de Projetos",
@@ -151,11 +166,16 @@ interface CommandPaletteProps {
 
 export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
+  const [index, setIndex] = useState<Result[]>([]);
   const navigate = useNavigate();
-  const index = useMemo(() => (open ? buildIndex() : []), [open]);
 
   useEffect(() => {
-    if (open) setQuery("");
+    if (open) {
+      setQuery("");
+      buildIndex()
+        .then(setIndex)
+        .catch((err) => console.error("Erro ao construir o índice de pesquisa:", err));
+    }
   }, [open]);
 
   const results = useMemo(() => {

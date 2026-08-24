@@ -1,17 +1,31 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  interlocutoresRepo,
-  notificacoesRepo,
-  faqRepo,
-  avisosRepo,
-  registoInformalRepo,
-  indicadoresRepo,
-  decisoesRepo,
-  topicosRepo,
-  processosRepo,
-  projetosRepo,
-  noticiasRepo,
-} from "../data/repos";
+  notificacoesRepoAsync,
+  faqRepoAsync,
+  registoInformalRepoAsync,
+  indicadoresRepoAsync,
+  decisoesRepoAsync,
+  processosRepoAsync,
+  projetosRepoAsync,
+  noticiasRepoAsync,
+} from "../data/asyncRepos";
+import { listarInterlocutores } from "../lib/interlocutoresRepository";
+import { listarAvisos } from "../lib/avisosRepository";
+import { listarTopicos } from "../lib/topicosRepository";
+import type {
+  Interlocutor,
+  Notificacao,
+  FAQEntry,
+  Aviso,
+  RegistoInformal,
+  IndicadorTerritorial,
+  Decisao,
+  Topico,
+  Processo,
+  Projeto,
+  Noticia,
+} from "../types";
 import { useIdentidade } from "../lib/session";
 import {
   useInteresses,
@@ -56,21 +70,64 @@ function formatarDataLonga(d: Date): string {
   return `${DIAS_SEMANA[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`;
 }
 
+interface DashboardData {
+  interlocutores: Interlocutor[];
+  notificacoes: Notificacao[];
+  faq: FAQEntry[];
+  avisos: Aviso[];
+  registos: RegistoInformal[];
+  indicadores: IndicadorTerritorial[];
+  decisoes: Decisao[];
+  topicos: Topico[];
+  processos: Processo[];
+  projetos: Projeto[];
+  noticias: Noticia[];
+}
+
 export function Dashboard() {
   const [identidade] = useIdentidade();
   const [interesses] = useInteresses();
   const { favoritos } = useFavoritos();
-  const interlocutores = interlocutoresRepo.list();
-  const notificacoes = notificacoesRepo.list();
-  const faq = faqRepo.list();
-  const avisos = avisosRepo.list();
-  const registos = registoInformalRepo.list();
-  const indicadores = indicadoresRepo.list();
-  const decisoes = decisoesRepo.list();
-  const topicos = topicosRepo.list();
-  const processos = processosRepo.list();
-  const projetos = projetosRepo.list();
-  const noticias = noticiasRepo.list();
+  const [dados, setDados] = useState<DashboardData | null>(null);
+
+  useEffect(() => {
+    let cancelado = false;
+    Promise.all([
+      listarInterlocutores(),
+      notificacoesRepoAsync.list(),
+      faqRepoAsync.list(),
+      listarAvisos(),
+      registoInformalRepoAsync.list(),
+      indicadoresRepoAsync.list(),
+      decisoesRepoAsync.list(),
+      listarTopicos(),
+      processosRepoAsync.list(),
+      projetosRepoAsync.list(),
+      noticiasRepoAsync.list(),
+    ])
+      .then(([interlocutores, notificacoes, faq, avisos, registos, indicadores, decisoes, topicos, processos, projetos, noticias]) => {
+        if (!cancelado) {
+          setDados({ interlocutores, notificacoes, faq, avisos, registos, indicadores, decisoes, topicos, processos, projetos, noticias });
+        }
+      })
+      .catch((err) => console.error("Erro ao carregar o painel geral:", err));
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
+  if (!dados) {
+    return (
+      <div className="page">
+        <div className="page-header">
+          <h1>Painel geral</h1>
+        </div>
+        <p className="page-description">A carregar...</p>
+      </div>
+    );
+  }
+
+  const { interlocutores, notificacoes, faq, avisos, registos, indicadores, decisoes, topicos, processos, projetos, noticias } = dados;
 
   const notificacoesPorLer = notificacoes.filter((n) => !n.lida);
   const avisosAtivos = avisos.filter((a) => a.estado === "Aberto" || a.estado === "Em preparação");

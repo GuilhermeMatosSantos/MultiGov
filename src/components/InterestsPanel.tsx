@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useInteresses,
   temasDisponiveis,
@@ -45,6 +45,18 @@ export function InterestsPanel() {
   const [interesses, setInteresses] = useInteresses();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Interesses>(interesses);
+  const [opcoes, setOpcoes] = useState<{ temas: string[]; programas: string[]; territorios: string[] }>({
+    temas: [],
+    programas: [],
+    territorios: [],
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    Promise.all([temasDisponiveis(), programasDisponiveis(), territoriosDisponiveis()])
+      .then(([temas, programas, territorios]) => setOpcoes({ temas, programas, territorios }))
+      .catch(() => {});
+  }, [open]);
 
   function openModal() {
     setForm(interesses);
@@ -84,19 +96,19 @@ export function InterestsPanel() {
           <form className="form" onSubmit={handleSubmit}>
             <ChipPicker
               label="Temas"
-              options={temasDisponiveis()}
+              options={opcoes.temas}
               selected={form.temas}
               onToggle={(v) => toggle("temas", v)}
             />
             <ChipPicker
               label="Programas"
-              options={programasDisponiveis()}
+              options={opcoes.programas}
               selected={form.programas}
               onToggle={(v) => toggle("programas", v)}
             />
             <ChipPicker
               label="Territórios"
-              options={territoriosDisponiveis()}
+              options={opcoes.territorios}
               selected={form.territorios}
               onToggle={(v) => toggle("territorios", v)}
             />

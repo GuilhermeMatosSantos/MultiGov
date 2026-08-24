@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
-import { notificacoesRepoAsync } from "../data/asyncRepos";
-import { processosRepo } from "../data/repos";
-import type { Notificacao } from "../types";
+import { notificacoesRepoAsync, processosRepoAsync } from "../data/asyncRepos";
+import type { Notificacao, Processo } from "../types";
 import { useIdentidade } from "../lib/session";
 import { UrgencyBadge } from "../components/UrgencyBadge";
 import { useMarkSeenOnMount, isNovo } from "../lib/lastSeen";
@@ -20,11 +19,12 @@ const tipos: Notificacao["tipo"][] = [
 export function Notificacoes() {
   const [identidade] = useIdentidade();
   const lastSeen = useMarkSeenOnMount("notificacoes");
-  const processos = processosRepo.list();
+  const [processos, setProcessos] = useState<Processo[]>([]);
   const [notificacoesAtuais, setNotificacoesAtuais] = useState<Notificacao[]>([]);
 
   useEffect(() => {
     notificacoesRepoAsync.list().then(setNotificacoesAtuais).catch(() => {});
+    processosRepoAsync.list().then(setProcessos).catch(() => {});
   }, []);
 
   function processoTitulo(processoId: string): string {

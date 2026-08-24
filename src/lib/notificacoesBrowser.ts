@@ -1,4 +1,5 @@
-import { notificacoesRepo, avisosRepo } from "../data/repos";
+import { notificacoesRepoAsync } from "../data/asyncRepos";
+import { listarAvisos } from "./avisosRepository";
 import { getIdentidade } from "./session";
 
 const ATIVAS_KEY = "multigov.notificacoesBrowserAtivas";
@@ -49,29 +50,33 @@ function marcarEnviado(id: string): void {
  * pendente da tua entidade) — um alerta do sistema operativo não é sítio
  * para o resto do "Resumo do dia", só para o que não pode esperar por
  * abrires a aba. Cada item só notifica uma vez (marcado por id). */
-export function verificarENotificar(): void {
+export async function verificarENotificar(): Promise<void> {
   if (!notificacoesBrowserAtivas()) return;
   const identidade = getIdentidade();
   const enviados = jaEnviados();
 
-  for (const n of notificacoesRepo.list()) {
-    if (!n.riscoDescompromisso || n.lida) continue;
-    const id = `n3-${n.id}`;
-    if (enviados.has(id)) continue;
-    new Notification("MULTI.GOV · Risco de descompromisso de fundos", { body: n.titulo, tag: id });
-    marcarEnviado(id);
-  }
-
-  if (identidade.entidade) {
-    for (const a of avisosRepo.list()) {
-      const pendente = (a.confirmacoes ?? []).find(
-        (c) => c.entidade.toLowerCase().includes(identidade.entidade.toLowerCase()) && !c.confirmado
-      );
-      if (!pendente) continue;
-      const id = `conf-${a.id}`;
+  try {
+    for (const n of await notificacoesRepoAsync.list()) {
+      if (!n.riscoDescompromisso || n.lida) continue;
+      const id = `n3-${n.id}`;
       if (enviados.has(id)) continue;
-      new Notification("MULTI.GOV · Confirmação pendente", { body: a.titulo, tag: id });
+      new Notification("MULTI.GOV · Risco de descompromisso de fundos", { body: n.titulo, tag: id });
       marcarEnviado(id);
     }
+
+    if (identidade.entidade) {
+      for (const a of await listarAvisos()) {
+        const pendente = (a.confirmacoes ?? []).find(
+          (c) => c.entidade.toLowerCase().includes(identidade.entidade.toLowerCase()) && !c.confirmado
+        );
+        if (!pendente) continue;
+        const id = `conf-${a.id}`;
+        if (enviados.has(id)) continue;
+        new Notification("MULTI.GOV · Confirmação pendente", { body: a.titulo, tag: id });
+        marcarEnviado(id);
+      }
+    }
+  } catch (err) {
+    console.error("Erro ao verificar notificações do browser:", err);
   }
 }
