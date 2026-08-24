@@ -1,11 +1,17 @@
+import { useEffect, useState } from "react";
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
-import { wrapSync } from "../lib/asyncRepository";
-import { registoInformalRepo, processosRepo } from "../data/repos";
+import { createSupabaseRepository } from "../lib/supabaseRepository";
+import { processosRepo } from "../data/repos";
 import type { RegistoInformal as RegistoInformalType } from "../types";
 import { useIdentidade } from "../lib/session";
 
-const registoInformalRepoAsync = wrapSync(registoInformalRepo);
+// Primeiro módulo ligado à Supabase real (os restantes continuam em
+// localStorage via wrapSync até serem migrados um a um).
+const registoInformalRepoAsync = createSupabaseRepository<RegistoInformalType>("registo_informal", [
+  "prazoRegularizacao",
+  "estado",
+]);
 
 const tipos: RegistoInformalType["tipo"][] = [
   "Telefonema",
@@ -19,7 +25,11 @@ const estados: NonNullable<RegistoInformalType["estado"]>[] = ["A confirmar form
 export function RegistoInformal() {
   const [identidade] = useIdentidade();
   const processos = processosRepo.list();
-  const registosAtuais = registoInformalRepo.list();
+  const [registosAtuais, setRegistosAtuais] = useState<RegistoInformalType[]>([]);
+
+  useEffect(() => {
+    registoInformalRepoAsync.list().then(setRegistosAtuais).catch(() => {});
+  }, []);
 
   function processoTitulo(processoId: string): string {
     if (!processoId) return "";
