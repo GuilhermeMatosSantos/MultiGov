@@ -31,7 +31,7 @@ export function DataBackup({ colapsada }: Props) {
       toast(resultado.mensagem, "error");
       return;
     }
-    toast("Dados importados — a recarregar...");
+    toast("Dados importados. A recarregar...");
     setTimeout(() => window.location.reload(), 800);
   }
 

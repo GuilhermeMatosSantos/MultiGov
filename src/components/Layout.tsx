@@ -41,7 +41,7 @@ export function Layout() {
 
   useEffect(() => {
     const item = navItems.find((i) => (i.end ? location.pathname === i.to : location.pathname.startsWith(i.to)));
-    document.title = item ? `${item.label} — MULTI.GOV` : "MULTI.GOV — Comunicação Multinível";
+    document.title = item ? `${item.label} · MULTI.GOV` : "MULTI.GOV · Comunicação Multinível";
     setMobileNavOpen(false);
   }, [location.pathname]);
 

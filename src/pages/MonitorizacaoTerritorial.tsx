@@ -129,7 +129,7 @@ export function MonitorizacaoTerritorial() {
       filters={filters}
       renderAbove={renderGrafico}
       defaultSortKey="ano"
-      itemLabel={(i) => `${i.territorio} — ${i.indicador}`}
+      itemLabel={(i) => `${i.territorio} · ${i.indicador}`}
       emptyItem={() => ({
         territorio: "",
         tipoTerritorio: "Município",

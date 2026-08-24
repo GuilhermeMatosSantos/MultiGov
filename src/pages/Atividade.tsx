@@ -109,7 +109,7 @@ export function Atividade() {
             />
           </h1>
           <p className="page-description">
-            Quem fez o quê, e quando — criado, editado ou removido em qualquer módulo, atribuído à identidade
+            Quem fez o quê, e quando: criado, editado ou removido em qualquer módulo, atribuído à identidade
             com que cada pessoa estava a navegar. Não é um registo à prova de adulteração (qualquer pessoa
             pode mudar de identidade a qualquer momento), mas dá visibilidade sobre a interação.
           </p>
@@ -150,7 +150,7 @@ export function Atividade() {
 
       {entidadesOrdenadas.length > 0 && (
         <section className="chart-section">
-          <h2>Ações por entidade — últimos 30 dias</h2>
+          <h2>Ações por entidade nos últimos 30 dias</h2>
           {entidadesOrdenadas.map(([entidade, n]) => (
             <div key={entidade} className="chart-bar-row">
               <span className="chart-bar-label" title={entidade}>
@@ -189,7 +189,7 @@ export function Atividade() {
         <EmptyState
           message={
             itens.length === 0
-              ? "Ainda sem atividade registada — aparece aqui assim que criares, editares ou removeres algo."
+              ? "Ainda sem atividade registada. Aparece aqui assim que criares, editares ou removeres algo."
               : "Nada corresponde à pesquisa ou aos filtros aplicados."
           }
         />

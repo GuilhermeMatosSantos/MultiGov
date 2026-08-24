@@ -217,7 +217,7 @@ export function Dashboard() {
       destaques.push({
         id: `d-venc-${p.titulo}`,
         icon: "🔴",
-        texto: `${p.titulo} venceu há ${Math.abs(dias)} dia(s) — ainda por resolver`,
+        texto: `${p.titulo} venceu há ${Math.abs(dias)} dia(s), ainda por resolver`,
         to: p.to,
         prioridade: 0,
       });
@@ -413,7 +413,7 @@ export function Dashboard() {
         {destaquesTop.length === 0 ? (
           <p className="daily-brief-empty">
             {temPersonalizacao
-              ? "Sem destaques para a tua entidade ou interesses hoje — tudo em dia."
+              ? "Sem destaques para a tua entidade ou interesses hoje. Tudo em dia."
               : "Sem urgências gerais hoje."}
           </p>
         ) : (

@@ -57,7 +57,7 @@ export function SessionGate({ children }: SessionGateProps) {
     const resultado = await registarConta(authForm.email, authForm.password, form.nome, form.entidade, form.nivel);
     setCarregando(false);
     if (resultado.erro === "CONFIRMACAO_PENDENTE") {
-      toast("Conta criada — confirma o teu email antes de entrares.");
+      toast("Conta criada. Confirma o teu email antes de entrares.");
       setModo("entrar");
       return;
     }
@@ -221,7 +221,7 @@ export function SessionGate({ children }: SessionGateProps) {
           <>
             <h1>Modo de teste</h1>
             <p className="session-gate-note">
-              Isto não é uma conta com palavra-passe — é um protótipo local, cada computador guarda os seus
+              Isto não é uma conta com palavra-passe: é um protótipo local, cada computador guarda os seus
               próprios dados. Serve para atribuir autoria às tuas ações e simular os diferentes pontos de vista
               de quem usa a aplicação.
             </p>

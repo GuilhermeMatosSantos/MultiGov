@@ -50,7 +50,7 @@ export function IdentityBar() {
       return;
     }
     salvarPerfil(form);
-    toast("Perfil guardado — disponível na barra para trocar rapidamente.");
+    toast("Perfil guardado. Disponível na barra para trocar rapidamente.");
   }
 
   async function handleRemoverPerfil(id: string, entidade: string) {
@@ -82,13 +82,13 @@ export function IdentityBar() {
               <span
                 className="badge badge-info"
                 style={{ marginLeft: 8 }}
-                title="Camada de permissões — define o que podes criar/editar (protótipo, não é imposto por um servidor)"
+                title="Camada de permissões: define o que podes criar/editar (protótipo, não é imposto por um servidor)"
               >
                 {NOME_CAMADA[camadaDoNivel(identidade.nivel)]}
               </span>
             </>
           ) : (
-            <>Ainda não definiste a tua entidade — as notificações relevantes não são destacadas.</>
+            <>Ainda não definiste a tua entidade, as notificações relevantes não são destacadas.</>
           )}
         </span>
         <div style={{ display: "flex", gap: 6 }}>
@@ -122,8 +122,8 @@ export function IdentityBar() {
       {open && (
         <Modal title="A minha identidade" onClose={() => setOpen(false)}>
           <p className="page-description">
-            Usada para destacar notificações relevantes e pré-preencher a tua entidade em registos novos —
-            simula os diferentes pontos de vista de quem usa a aplicação, sem exigir login. Guarda perfis para
+            Usada para destacar notificações relevantes e pré-preencher a tua entidade em registos novos.
+            Simula os diferentes pontos de vista de quem usa a aplicação, sem exigir login. Guarda perfis para
             trocar entre entidades com um clique.
           </p>
           <form className="form" onSubmit={handleSubmit}>

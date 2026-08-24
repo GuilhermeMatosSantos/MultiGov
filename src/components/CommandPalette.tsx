@@ -204,7 +204,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         />
         <div className="palette-results">
           {query.trim() === "" && (
-            <p className="palette-hint">Escreve para pesquisar em todos os módulos — processos, interlocutores, notificações, avisos e mais.</p>
+            <p className="palette-hint">Escreve para pesquisar em todos os módulos: processos, interlocutores, notificações, avisos e mais.</p>
           )}
           {query.trim() !== "" && results.length === 0 && <p className="palette-hint">Sem resultados para "{query}".</p>}
           {results.map((r) => (

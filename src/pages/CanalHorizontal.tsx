@@ -182,7 +182,7 @@ export function CanalHorizontal() {
             />
           </h1>
           <p className="page-description">
-            Fóruns entre entidades homólogas (CIM–CIM, AG–AG) para partilha de boas práticas — a versão
+            Fóruns entre entidades homólogas (CIM–CIM, AG–AG) para partilha de boas práticas: a versão
             institucional e rastreável dos grupos informais que já funcionam.
           </p>
         </div>
@@ -369,7 +369,7 @@ export function CanalHorizontal() {
                 ))}
               </select>
               <span className="field-hint">
-                Inspirado no modelo real TAIEX-REGIO Peer2Peer da DG REGIO — pedidos estruturados de
+                Inspirado no modelo real TAIEX-REGIO Peer2Peer da DG REGIO: pedidos estruturados de
                 intercâmbio entre pares, não só um fórum aberto.
               </span>
             </div>

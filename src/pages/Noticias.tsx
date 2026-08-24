@@ -212,7 +212,7 @@ export function Noticias() {
         resumo: preview.resumo || prev.resumo,
         imagem: preview.imagem || prev.imagem,
       }));
-      toast("Pré-visualização aplicada — revê os campos antes de guardar.");
+      toast("Pré-visualização aplicada. Revê os campos antes de guardar.");
     } catch {
       toast("Não foi possível obter uma pré-visualização deste link.", "error");
     } finally {
@@ -251,7 +251,7 @@ export function Noticias() {
             />
           </h1>
           <p className="page-description">
-            Alterações a regulamentos europeus e nacionais, orientações novas e prazos relevantes — resumidos,
+            Alterações a regulamentos europeus e nacionais, orientações novas e prazos relevantes, resumidos
             para consulta rápida sem ir à fonte original.
           </p>
         </div>
@@ -499,7 +499,7 @@ export function Noticias() {
               </div>
               <p className="field-hint">
                 Se colares um URL, isto vai buscar título, resumo e imagem através de um serviço externo
-                (microlink.io) — o URL é enviado a esse serviço nesse momento. Revê sempre antes de guardar.
+                (microlink.io). O URL é enviado a esse serviço nesse momento. Revê sempre antes de guardar.
               </p>
             </div>
             <div className="form-field form-field-full">

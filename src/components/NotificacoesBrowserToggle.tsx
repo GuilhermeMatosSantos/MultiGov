@@ -34,7 +34,7 @@ export function NotificacoesBrowserToggle({ colapsada }: Props) {
     const concedido = await ativarNotificacoesBrowser();
     setAtivas(concedido);
     if (concedido) {
-      toast("Notificações do browser ativadas — só para o mais urgente, e só enquanto esta aba estiver aberta.");
+      toast("Notificações do browser ativadas, só para o mais urgente, e só enquanto esta aba estiver aberta.");
     } else {
       toast("Permissão não concedida pelo browser.", "error");
     }

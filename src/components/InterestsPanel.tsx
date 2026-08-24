@@ -90,7 +90,7 @@ export function InterestsPanel() {
       {open && (
         <Modal title="As minhas áreas de interesse" onClose={() => setOpen(false)}>
           <p className="page-description">
-            Escolhe temas, programas e territórios que te interessam — passam a ficar destacados no Painel
+            Escolhe temas, programas e territórios que te interessam: passam a ficar destacados no Painel
             Geral (Notificações, Avisos e Notícias que lhes digam respeito), independentemente da tua entidade.
           </p>
           <form className="form" onSubmit={handleSubmit}>

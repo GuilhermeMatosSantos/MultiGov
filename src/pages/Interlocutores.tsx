@@ -170,7 +170,7 @@ export function Interlocutores() {
       });
       await refresh();
       setSubstituicaoAlvo(null);
-      toast(`Titular substituído — ${arquivado.nome} passou para o histórico.`);
+      toast(`Titular substituído: ${arquivado.nome} passou para o histórico.`);
       registarAtividade("editar", "Interlocutores", `Substituição em ${substituicaoAlvo.entidade}: ${substituicaoForm.nome}`);
     } catch (err) {
       console.error(err);
@@ -192,7 +192,7 @@ export function Interlocutores() {
             />
           </h1>
           <p className="page-description">
-            Quem é quem por nível e domínio — interlocutor atual, área de responsabilidade e contacto. Ao
+            Quem é quem por nível e domínio: interlocutor atual, área de responsabilidade e contacto. Ao
             substituir um titular, o anterior fica guardado no histórico em vez de se perder.
           </p>
         </div>
@@ -388,7 +388,7 @@ export function Interlocutores() {
       )}
 
       {historicoAberto && (
-        <Modal title={`Histórico — ${historicoAberto.entidade}`} onClose={() => setHistoricoAberto(null)}>
+        <Modal title={`Histórico de ${historicoAberto.entidade}`} onClose={() => setHistoricoAberto(null)}>
           <p className="page-description">
             Titular atual: <strong>{historicoAberto.nome}</strong> ({historicoAberto.cargo}), desde{" "}
             {historicoAberto.atualizadoEm}.
@@ -422,7 +422,7 @@ export function Interlocutores() {
 
       {substituicaoAlvo && (
         <Modal
-          title={`Substituir titular — ${substituicaoAlvo.entidade}`}
+          title={`Substituir titular de ${substituicaoAlvo.entidade}`}
           onClose={() => setSubstituicaoAlvo(null)}
         >
           <p className="page-description">
@@ -478,7 +478,7 @@ export function Interlocutores() {
                 onChange={(e) => setSubstituicaoForm((p) => ({ ...p, notasTransicao: e.target.value }))}
               />
               <span className="field-hint">
-                Fica registado no histórico — a rotatividade de pessoal é uma das principais causas de
+                Fica registado no histórico. A rotatividade de pessoal é uma das principais causas de
                 perda de capacidade institucional entre entidades.
               </span>
             </div>

@@ -229,7 +229,7 @@ export function CoordenacaoAvisos() {
             />
           </h1>
           <p className="page-description">
-            Autoridade de Gestão e Organismos Intermédios negoceiam calendário e critérios — não é só uma
+            Autoridade de Gestão e Organismos Intermédios negoceiam calendário e critérios: não é só uma
             tabela preenchida por uma pessoa, é uma proposta que cada entidade comenta e confirma.
           </p>
         </div>
@@ -253,7 +253,7 @@ export function CoordenacaoAvisos() {
           ) : (
             <span
               className="badge badge-neutral"
-              title="O teu perfil tem acesso de leitura à criação de avisos — podes sempre comentar e confirmar"
+              title="O teu perfil tem acesso de leitura à criação de avisos. Podes sempre comentar e confirmar"
             >
               🔒 Acesso de leitura
             </span>
@@ -418,7 +418,7 @@ export function CoordenacaoAvisos() {
           {!editing && (
             <p className="field-hint" style={{ marginBottom: 12 }}>
               💡 Antes de desenhar critérios de raiz, vale a pena consultar a{" "}
-              <Link to="/memoria-projetos">Memória de Projetos</Link> — lições de avisos anteriores no mesmo
+              <Link to="/memoria-projetos">Memória de Projetos</Link>: lições de avisos anteriores no mesmo
               território/programa raramente são reutilizadas se não forem consultadas ativamente.
             </p>
           )}

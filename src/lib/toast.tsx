@@ -49,7 +49,7 @@ export function ToastHost() {
           }}
           tabIndex={0}
           role="button"
-          aria-label={`${t.message} — dispensar`}
+          aria-label={`${t.message} (dispensar)`}
         >
           {t.message}
         </div>

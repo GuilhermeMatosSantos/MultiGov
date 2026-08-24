@@ -29,7 +29,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <span className="error-boundary-icon">⚠️</span>
           <h1>Ocorreu um erro inesperado</h1>
           <p>
-            Algo correu mal nesta página. Os teus dados continuam guardados neste browser — tenta recarregar.
+            Algo correu mal nesta página. Os teus dados continuam guardados neste browser, tenta recarregar.
             Se o erro persistir depois de recarregar, é provável que os dados guardados estejam desatualizados
             face à versão atual da aplicação.
           </p>

@@ -52,7 +52,7 @@ export function FeedbackImpacto({ colapsada }: Props) {
       });
       setOpen(false);
       setComentario("");
-      toast("Obrigado — o teu feedback ajuda a perceber se isto está mesmo a resolver o problema.");
+      toast("Obrigado. O teu feedback ajuda a perceber se isto está mesmo a resolver o problema.");
     } catch (err) {
       console.error(err);
       toast("Erro ao enviar feedback. Tenta novamente.", "error");
@@ -74,7 +74,7 @@ export function FeedbackImpacto({ colapsada }: Props) {
       {open && (
         <Modal title="Isto ajudou-te?" onClose={() => setOpen(false)}>
           <p className="page-description">
-            Em <strong>{moduloAtual(location.pathname)}</strong> — isto ajudou-te a resolver ou acompanhar
+            Em <strong>{moduloAtual(location.pathname)}</strong>, isto ajudou-te a resolver ou acompanhar
             algo mais depressa do que antes?
           </p>
           <div className="form-field form-field-full">

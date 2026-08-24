@@ -160,7 +160,7 @@ export function Processos() {
             />
           </h1>
           <p className="page-description">
-            O fio condutor entre notificações, registos informais e avisos — acompanha uma candidatura do
+            O fio condutor entre notificações, registos informais e avisos. Acompanha uma candidatura do
             início ao fim, em vez de espalhar a sua história por vários módulos separados.
           </p>
         </div>
