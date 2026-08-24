@@ -1,10 +1,8 @@
+import { useEffect, useState } from "react";
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
-import { wrapSync } from "../lib/asyncRepository";
-import { faqRepo } from "../data/repos";
+import { faqRepoAsync } from "../data/asyncRepos";
 import type { FAQEntry } from "../types";
-
-const faqRepoAsync = wrapSync(faqRepo);
 
 const columns: ColumnConfig<FAQEntry>[] = [
   {
@@ -42,7 +40,11 @@ const fields: FieldConfig<FAQEntry>[] = [
 ];
 
 export function BaseConhecimento() {
-  const faqAtual = faqRepo.list();
+  const [faqAtual, setFaqAtual] = useState<FAQEntry[]>([]);
+
+  useEffect(() => {
+    faqRepoAsync.list().then(setFaqAtual).catch(() => {});
+  }, []);
 
   const filters: FilterConfig<FAQEntry>[] = [
     { key: "categoria", label: "Categoria", options: distinctOptions(faqAtual, "categoria") },

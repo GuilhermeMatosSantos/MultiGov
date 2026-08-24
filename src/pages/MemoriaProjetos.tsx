@@ -1,10 +1,8 @@
+import { useEffect, useState } from "react";
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
-import { wrapSync } from "../lib/asyncRepository";
-import { projetosRepo } from "../data/repos";
+import { projetosRepoAsync } from "../data/asyncRepos";
 import type { Projeto } from "../types";
-
-const projetosRepoAsync = wrapSync(projetosRepo);
 
 const columns: ColumnConfig<Projeto>[] = [
   { key: "titulo", label: "Projeto" },
@@ -36,7 +34,11 @@ const fields: FieldConfig<Projeto>[] = [
 ];
 
 export function MemoriaProjetos() {
-  const projetosAtuais = projetosRepo.list();
+  const [projetosAtuais, setProjetosAtuais] = useState<Projeto[]>([]);
+
+  useEffect(() => {
+    projetosRepoAsync.list().then(setProjetosAtuais).catch(() => {});
+  }, []);
 
   const filters: FilterConfig<Projeto>[] = [
     { key: "territorio", label: "Território", options: distinctOptions(projetosAtuais, "territorio") },

@@ -1,7 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { avisosRepo } from "../data/repos";
-import { newId } from "../lib/id";
+import {
+  listarAvisos,
+  criarAviso,
+  atualizarAviso,
+  removerAviso,
+  adicionarComentarioAviso,
+  definirConfirmacaoAviso,
+  removerConfirmacaoAviso,
+} from "../lib/avisosRepository";
 import type { Aviso } from "../types";
 import { Modal } from "../components/Modal";
 import { EmptyState } from "../components/EmptyState";
@@ -19,16 +26,6 @@ import { usePagination } from "../lib/usePagination";
 import { podeEscrever } from "../lib/permissoes";
 
 const estados: Aviso["estado"][] = ["Planeado", "Em preparação", "Aberto", "Fechado"];
-
-// Protege contra registos guardados antes de "comentarios"/"confirmacoes"
-// existirem no esquema de dados.
-function normalizar(avisos: Aviso[]): Aviso[] {
-  return avisos.map((a) => ({
-    ...a,
-    comentarios: a.comentarios ?? [],
-    confirmacoes: a.confirmacoes ?? [],
-  }));
-}
 
 function emptyForm(): Omit<Aviso, "id" | "comentarios" | "confirmacoes"> {
   return {
@@ -48,8 +45,8 @@ export function CoordenacaoAvisos() {
   const deepLinkId = (location.state as { selectId?: string } | null)?.selectId;
   const [identidade] = useIdentidade();
   const podeEditar = podeEscrever(identidade.nivel, "coordenacao-avisos");
-  const [avisos, setAvisos] = useState<Aviso[]>(() => normalizar(avisosRepo.list()));
-  const [activeId, setActiveId] = useState<string | null>(deepLinkId ?? avisos[0]?.id ?? null);
+  const [avisos, setAvisos] = useState<Aviso[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(deepLinkId ?? null);
   const [vista, setVista] = useState<"lista" | "calendario">("lista");
   const [search, setSearch] = useState("");
   const [estadoFiltro, setEstadoFiltro] = useState("");
@@ -60,9 +57,16 @@ export function CoordenacaoAvisos() {
   const [novaEntidade, setNovaEntidade] = useState("");
   const [novoComentario, setNovoComentario] = useState("");
 
-  function refresh() {
-    setAvisos(normalizar(avisosRepo.list()));
+  async function refresh() {
+    const lista = await listarAvisos();
+    setAvisos(lista);
+    if (activeId === null && lista.length > 0) setActiveId(lista[0].id);
   }
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = avisos
     .filter((a) => {
@@ -114,70 +118,91 @@ export function CoordenacaoAvisos() {
     setFormOpen(true);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (editing) {
-      avisosRepo.update(editing.id, formData);
-      toast("Alterações guardadas.");
-      registarAtividade("editar", "Coordenação de Avisos", formData.titulo);
-    } else {
-      const id = newId();
-      avisosRepo.create({ id, ...formData, comentarios: [], confirmacoes: [] });
-      setActiveId(id);
-      toast("Aviso criado.");
-      registarAtividade("criar", "Coordenação de Avisos", formData.titulo);
+    try {
+      if (editing) {
+        await atualizarAviso(editing.id, formData);
+        toast("Alterações guardadas.");
+        registarAtividade("editar", "Coordenação de Avisos", formData.titulo);
+      } else {
+        const criado = await criarAviso(formData);
+        setActiveId(criado.id);
+        toast("Aviso criado.");
+        registarAtividade("criar", "Coordenação de Avisos", formData.titulo);
+      }
+      await refresh();
+      setFormOpen(false);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao guardar. Tenta novamente.", "error");
     }
-    refresh();
-    setFormOpen(false);
   }
 
   async function handleDelete(a: Aviso) {
     const ok = await confirmDialog(`Remover o aviso "${a.titulo}"? Esta ação não pode ser desfeita.`, "Remover");
     if (!ok) return;
-    avisosRepo.remove(a.id);
-    refresh();
-    if (activeId === a.id) setActiveId(null);
-    toast("Aviso removido.", "info");
-    registarAtividade("remover", "Coordenação de Avisos", a.titulo);
+    try {
+      await removerAviso(a.id);
+      if (activeId === a.id) setActiveId(null);
+      await refresh();
+      toast("Aviso removido.", "info");
+      registarAtividade("remover", "Coordenação de Avisos", a.titulo);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao remover. Tenta novamente.", "error");
+    }
   }
 
-  function toggleConfirmacao(a: Aviso, entidade: string) {
-    const confirmacoes = a.confirmacoes.map((c) =>
-      c.entidade === entidade ? { ...c, confirmado: !c.confirmado } : c
-    );
-    avisosRepo.update(a.id, { confirmacoes });
-    refresh();
+  async function toggleConfirmacao(a: Aviso, entidade: string) {
+    const atual = a.confirmacoes.find((c) => c.entidade === entidade);
+    try {
+      await definirConfirmacaoAviso(a.id, entidade, !(atual?.confirmado ?? false));
+      await refresh();
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao atualizar confirmação. Tenta novamente.", "error");
+    }
   }
 
-  function addEntidade(a: Aviso) {
+  async function addEntidade(a: Aviso) {
     if (!novaEntidade.trim()) return;
-    avisosRepo.update(a.id, { confirmacoes: [...a.confirmacoes, { entidade: novaEntidade, confirmado: false }] });
-    setNovaEntidade("");
-    refresh();
+    try {
+      await definirConfirmacaoAviso(a.id, novaEntidade, false);
+      setNovaEntidade("");
+      await refresh();
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao adicionar entidade. Tenta novamente.", "error");
+    }
   }
 
-  function removeEntidade(a: Aviso, entidade: string) {
-    avisosRepo.update(a.id, { confirmacoes: a.confirmacoes.filter((c) => c.entidade !== entidade) });
-    refresh();
+  async function removeEntidade(a: Aviso, entidade: string) {
+    try {
+      await removerConfirmacaoAviso(a.id, entidade);
+      await refresh();
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao remover entidade. Tenta novamente.", "error");
+    }
   }
 
-  function addComentario(e: React.FormEvent, a: Aviso) {
+  async function addComentario(e: React.FormEvent, a: Aviso) {
     e.preventDefault();
     if (!novoComentario.trim()) return;
-    avisosRepo.update(a.id, {
-      comentarios: [
-        ...a.comentarios,
-        {
-          id: newId(),
-          autor: identidade.nome || "Eu",
-          entidade: identidade.entidade || "—",
-          texto: novoComentario,
-          data: new Date().toISOString().slice(0, 10),
-        },
-      ],
-    });
-    setNovoComentario("");
-    refresh();
+    try {
+      await adicionarComentarioAviso(a.id, {
+        autor: identidade.nome || "Eu",
+        entidade: identidade.entidade || "—",
+        texto: novoComentario,
+        data: new Date().toISOString().slice(0, 10),
+      });
+      setNovoComentario("");
+      await refresh();
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao comentar. Tenta novamente.", "error");
+    }
   }
 
   const confirmadas = active ? active.confirmacoes.filter((c) => c.confirmado).length : 0;

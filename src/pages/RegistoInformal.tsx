@@ -1,17 +1,10 @@
 import { useEffect, useState } from "react";
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
-import { createSupabaseRepository } from "../lib/supabaseRepository";
+import { registoInformalRepoAsync } from "../data/asyncRepos";
 import { processosRepo } from "../data/repos";
 import type { RegistoInformal as RegistoInformalType } from "../types";
 import { useIdentidade } from "../lib/session";
-
-// Primeiro módulo ligado à Supabase real (os restantes continuam em
-// localStorage via wrapSync até serem migrados um a um).
-const registoInformalRepoAsync = createSupabaseRepository<RegistoInformalType>("registo_informal", [
-  "prazoRegularizacao",
-  "estado",
-]);
 
 const tipos: RegistoInformalType["tipo"][] = [
   "Telefonema",

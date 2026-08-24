@@ -1,10 +1,8 @@
+import { useEffect, useState } from "react";
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
-import { wrapSync } from "../lib/asyncRepository";
-import { decisoesRepo } from "../data/repos";
+import { decisoesRepoAsync } from "../data/asyncRepos";
 import type { Decisao } from "../types";
-
-const decisoesRepoAsync = wrapSync(decisoesRepo);
 
 const estados: Decisao["estado"][] = ["Decidida", "Em execução", "Concluída"];
 
@@ -31,7 +29,11 @@ const fields: FieldConfig<Decisao>[] = [
 ];
 
 export function Transparencia() {
-  const decisoesAtuais = decisoesRepo.list();
+  const [decisoesAtuais, setDecisoesAtuais] = useState<Decisao[]>([]);
+
+  useEffect(() => {
+    decisoesRepoAsync.list().then(setDecisoesAtuais).catch(() => {});
+  }, []);
 
   const filters: FilterConfig<Decisao>[] = [
     { key: "estado", label: "Estado", options: estados },

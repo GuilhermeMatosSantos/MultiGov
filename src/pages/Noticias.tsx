@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { noticiasRepo, notificacoesRepo } from "../data/repos";
+import { noticiasRepoAsync, notificacoesRepoAsync } from "../data/asyncRepos";
 import type { Noticia, Notificacao } from "../types";
 import { newId } from "../lib/id";
 import { toast } from "../lib/toast";
@@ -63,7 +63,7 @@ export function Noticias() {
   const lastSeen = useMarkSeenOnMount("noticias");
   const [identidade] = useIdentidade();
   const podeEditar = podeEscrever(identidade.nivel, "noticias");
-  const [noticias, setNoticias] = useState<Noticia[]>(() => noticiasRepo.list());
+  const [noticias, setNoticias] = useState<Noticia[]>([]);
   const [search, setSearch] = useState(() => new URLSearchParams(location.search).get("q") ?? "");
   const [fonteFiltro, setFonteFiltro] = useState("");
   const [tipoFiltro, setTipoFiltro] = useState("");
@@ -73,9 +73,14 @@ export function Noticias() {
   const [imagemProcessando, setImagemProcessando] = useState(false);
   const [preVisualizando, setPreVisualizando] = useState(false);
 
-  function refresh() {
-    setNoticias(noticiasRepo.list());
+  async function refresh() {
+    setNoticias(await noticiasRepoAsync.list());
   }
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = noticias
     .filter((n) => {
@@ -112,31 +117,41 @@ export function Noticias() {
     setEditing(null);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (editing) {
-      noticiasRepo.update(editing.id, formData);
-      toast("Alterações guardadas.");
-      registarAtividade("editar", "Notícias & Regulamentação", formData.titulo);
-    } else {
-      noticiasRepo.create({ id: newId(), ...formData });
-      toast("Notícia criada.");
-      registarAtividade("criar", "Notícias & Regulamentação", formData.titulo);
+    try {
+      if (editing) {
+        await noticiasRepoAsync.update(editing.id, formData);
+        toast("Alterações guardadas.");
+        registarAtividade("editar", "Notícias & Regulamentação", formData.titulo);
+      } else {
+        await noticiasRepoAsync.create({ id: newId(), ...formData });
+        toast("Notícia criada.");
+        registarAtividade("criar", "Notícias & Regulamentação", formData.titulo);
+      }
+      await refresh();
+      closeForm();
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao guardar. Tenta novamente.", "error");
     }
-    refresh();
-    closeForm();
   }
 
   async function handleDelete(n: Noticia) {
     const ok = await confirmDialog(`Remover "${n.titulo}"? Esta ação não pode ser desfeita.`, "Remover");
     if (!ok) return;
-    noticiasRepo.remove(n.id);
-    refresh();
-    registarAtividade("remover", "Notícias & Regulamentação", n.titulo);
-    toast("Notícia removida.", "info");
+    try {
+      await noticiasRepoAsync.remove(n.id);
+      await refresh();
+      registarAtividade("remover", "Notícias & Regulamentação", n.titulo);
+      toast("Notícia removida.", "info");
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao remover. Tenta novamente.", "error");
+    }
   }
 
-  function criarNotificacao(n: Noticia) {
+  async function criarNotificacao(n: Noticia) {
     const notificacao: Notificacao = {
       id: newId(),
       titulo: n.titulo,
@@ -150,9 +165,14 @@ export function Noticias() {
       processoId: "",
       criadoEm: new Date().toISOString(),
     };
-    notificacoesRepo.create(notificacao);
-    toast("Notificação interna criada a partir desta notícia.");
-    navigate("/notificacoes");
+    try {
+      await notificacoesRepoAsync.create(notificacao);
+      toast("Notificação interna criada a partir desta notícia.");
+      navigate("/notificacoes");
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao criar notificação. Tenta novamente.", "error");
+    }
   }
 
   async function handleImagemFile(file: File | undefined) {

@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { topicosRepo } from "../data/repos";
-import { newId } from "../lib/id";
+import {
+  listarTopicos,
+  criarTopico,
+  atualizarTopico,
+  removerTopico,
+  enviarMensagemTopico,
+} from "../lib/topicosRepository";
 import type { Topico } from "../types";
 import { Modal } from "../components/Modal";
 import { EmptyState } from "../components/EmptyState";
@@ -25,7 +30,7 @@ export function CanalHorizontal() {
   const deepLinkId = (location.state as { selectId?: string } | null)?.selectId;
   const [identidade] = useIdentidade();
   const podeEditar = podeEscrever(identidade.nivel, "canal-horizontal");
-  const [topicos, setTopicos] = useState<Topico[]>(() => topicosRepo.list());
+  const [topicos, setTopicos] = useState<Topico[]>([]);
   const [activeId, setActiveId] = useState<string | null>(deepLinkId ?? null);
   const [search, setSearch] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("");
@@ -46,9 +51,14 @@ export function CanalHorizontal() {
   });
   const [novoResultado, setNovoResultado] = useState("");
 
-  function refresh() {
-    setTopicos(topicosRepo.list());
+  async function refresh() {
+    setTopicos(await listarTopicos());
   }
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = topicos
     .filter((t) => {
@@ -67,74 +77,87 @@ export function CanalHorizontal() {
     setNovoResultado(active?.resultado ?? "");
   }, [active?.id, active?.resultado]);
 
-  function handleCreateTopico(e: React.FormEvent) {
+  async function handleCreateTopico(e: React.FormEvent) {
     e.preventDefault();
-    const topico: Topico = {
-      id: newId(),
+    const novo: Omit<Topico, "id" | "mensagens"> = {
       titulo: novoTopico.titulo,
       categoria: novoTopico.categoria,
       autor: novoTopico.autor || "Anónimo",
       entidade: novoTopico.entidade,
       data: new Date().toISOString().slice(0, 10),
-      mensagens: [],
       tipoPedido: novoTopico.tipoPedido,
       ...(novoTopico.tipoPedido === "Pedido de intercâmbio"
         ? { formatoIntercambio: novoTopico.formatoIntercambio, objetivoIntercambio: novoTopico.objetivoIntercambio }
         : {}),
     };
-    topicosRepo.create(topico);
-    refresh();
-    setNovoTopicoAberto(false);
-    setNovoTopico({
-      titulo: "",
-      categoria: "Boas práticas",
-      autor: "",
-      entidade: "",
-      tipoPedido: "Partilha de boas práticas",
-      formatoIntercambio: "Reunião",
-      objetivoIntercambio: "",
-    });
-    setActiveId(topico.id);
-    toast("Tópico criado.");
-    registarAtividade("criar", "Canal Horizontal", topico.titulo);
+    try {
+      const criado = await criarTopico(novo);
+      await refresh();
+      setNovoTopicoAberto(false);
+      setNovoTopico({
+        titulo: "",
+        categoria: "Boas práticas",
+        autor: "",
+        entidade: "",
+        tipoPedido: "Partilha de boas práticas",
+        formatoIntercambio: "Reunião",
+        objetivoIntercambio: "",
+      });
+      setActiveId(criado.id);
+      toast("Tópico criado.");
+      registarAtividade("criar", "Canal Horizontal", criado.titulo);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao criar tópico. Tenta novamente.", "error");
+    }
   }
 
-  function handleSendMessage(e: React.FormEvent) {
+  async function handleSendMessage(e: React.FormEvent) {
     e.preventDefault();
     if (!active || !novaMensagem.trim()) return;
-    const mensagens = [
-      ...active.mensagens,
-      {
-        id: newId(),
+    try {
+      await enviarMensagemTopico(active.id, {
         autor: identidade.nome || "Eu",
         entidade: identidade.entidade || "—",
         texto: novaMensagem,
         data: new Date().toISOString().slice(0, 10),
-      },
-    ];
-    topicosRepo.update(active.id, { mensagens });
-    refresh();
-    setNovaMensagem("");
+      });
+      await refresh();
+      setNovaMensagem("");
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao enviar mensagem. Tenta novamente.", "error");
+    }
   }
 
-  function handleGuardarResultado(e: React.FormEvent) {
+  async function handleGuardarResultado(e: React.FormEvent) {
     e.preventDefault();
     if (!active) return;
-    topicosRepo.update(active.id, { resultado: novoResultado });
-    refresh();
-    toast("Resultado do intercâmbio guardado.");
-    registarAtividade("editar", "Canal Horizontal", `Resultado documentado: ${active.titulo}`);
+    try {
+      await atualizarTopico(active.id, { resultado: novoResultado });
+      await refresh();
+      toast("Resultado do intercâmbio guardado.");
+      registarAtividade("editar", "Canal Horizontal", `Resultado documentado: ${active.titulo}`);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao guardar resultado. Tenta novamente.", "error");
+    }
   }
 
   async function handleDeleteTopico(id: string) {
     const ok = await confirmDialog("Remover este tópico e todas as mensagens? Esta ação não pode ser desfeita.", "Remover");
     if (!ok) return;
     const alvo = topicos.find((t) => t.id === id);
-    topicosRepo.remove(id);
-    refresh();
-    if (activeId === id) setActiveId(null);
-    toast("Tópico removido.", "info");
-    registarAtividade("remover", "Canal Horizontal", alvo?.titulo ?? id);
+    try {
+      await removerTopico(id);
+      if (activeId === id) setActiveId(null);
+      await refresh();
+      toast("Tópico removido.", "info");
+      registarAtividade("remover", "Canal Horizontal", alvo?.titulo ?? id);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao remover. Tenta novamente.", "error");
+    }
   }
 
   return (

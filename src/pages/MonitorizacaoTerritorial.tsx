@@ -1,10 +1,8 @@
+import { useEffect, useState } from "react";
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
-import { wrapSync } from "../lib/asyncRepository";
-import { indicadoresRepo } from "../data/repos";
+import { indicadoresRepoAsync } from "../data/asyncRepos";
 import type { IndicadorTerritorial } from "../types";
-
-const indicadoresRepoAsync = wrapSync(indicadoresRepo);
 
 const tiposTerritorio: IndicadorTerritorial["tipoTerritorio"][] = [
   "Município",
@@ -102,7 +100,11 @@ function renderGrafico(filtrados: IndicadorTerritorial[]) {
 }
 
 export function MonitorizacaoTerritorial() {
-  const indicadoresAtuais = indicadoresRepo.list();
+  const [indicadoresAtuais, setIndicadoresAtuais] = useState<IndicadorTerritorial[]>([]);
+
+  useEffect(() => {
+    indicadoresRepoAsync.list().then(setIndicadoresAtuais).catch(() => {});
+  }, []);
 
   const filters: FilterConfig<IndicadorTerritorial>[] = [
     { key: "tipoTerritorio", label: "Tipo de território", options: tiposTerritorio },

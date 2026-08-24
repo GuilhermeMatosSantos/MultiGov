@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { processosRepo, avisosRepo, notificacoesRepo, registoInformalRepo } from "../data/repos";
-import { newId } from "../lib/id";
-import type { Processo } from "../types";
+import { avisosRepo } from "../data/repos";
+import { processosRepoAsync, notificacoesRepoAsync, registoInformalRepoAsync } from "../data/asyncRepos";
+import type { Notificacao, Processo, RegistoInformal } from "../types";
 import { Modal } from "../components/Modal";
 import { EmptyState } from "../components/EmptyState";
 import { FilterBar } from "../components/FilterBar";
@@ -42,8 +42,8 @@ export function Processos() {
   const [identidade] = useIdentidade();
   const podeEditar = podeEscrever(identidade.nivel, "processos");
   const deepLinkId = (location.state as { selectId?: string } | null)?.selectId;
-  const [processos, setProcessos] = useState<Processo[]>(() => processosRepo.list());
-  const [activeId, setActiveId] = useState<string | null>(deepLinkId ?? processos[0]?.id ?? null);
+  const [processos, setProcessos] = useState<Processo[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(deepLinkId ?? null);
   const [search, setSearch] = useState("");
   const [estadoFiltro, setEstadoFiltro] = useState("");
   const [programaFiltro, setProgramaFiltro] = useState("");
@@ -51,14 +51,23 @@ export function Processos() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Processo | null>(null);
   const [formData, setFormData] = useState<Omit<Processo, "id">>(emptyForm());
+  const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
+  const [registos, setRegistos] = useState<RegistoInformal[]>([]);
 
   const avisos = avisosRepo.list();
-  const notificacoes = notificacoesRepo.list();
-  const registos = registoInformalRepo.list();
 
-  function refresh() {
-    setProcessos(processosRepo.list());
+  async function refresh() {
+    const lista = await processosRepoAsync.list();
+    setProcessos(lista);
+    if (activeId === null && lista.length > 0) setActiveId(lista[0].id);
   }
+
+  useEffect(() => {
+    refresh();
+    notificacoesRepoAsync.list().then(setNotificacoes).catch(() => {});
+    registoInformalRepoAsync.list().then(setRegistos).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = processos
     .filter((p) => {
@@ -99,31 +108,40 @@ export function Processos() {
     setFormOpen(true);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (editing) {
-      processosRepo.update(editing.id, formData);
-      toast("Alterações guardadas.");
-      registarAtividade("editar", "Processos", formData.titulo);
-    } else {
-      const id = newId();
-      processosRepo.create({ id, ...formData });
-      setActiveId(id);
-      toast("Processo criado.");
-      registarAtividade("criar", "Processos", formData.titulo);
+    try {
+      if (editing) {
+        await processosRepoAsync.update(editing.id, formData);
+        toast("Alterações guardadas.");
+        registarAtividade("editar", "Processos", formData.titulo);
+      } else {
+        const criado = await processosRepoAsync.create({ id: "", ...formData });
+        setActiveId(criado.id);
+        toast("Processo criado.");
+        registarAtividade("criar", "Processos", formData.titulo);
+      }
+      await refresh();
+      setFormOpen(false);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao guardar. Tenta novamente.", "error");
     }
-    refresh();
-    setFormOpen(false);
   }
 
   async function handleDelete(p: Processo) {
     const ok = await confirmDialog(`Remover o processo "${p.titulo}"? Esta ação não pode ser desfeita.`, "Remover");
     if (!ok) return;
-    processosRepo.remove(p.id);
-    refresh();
-    if (activeId === p.id) setActiveId(null);
-    toast("Processo removido.", "info");
-    registarAtividade("remover", "Processos", p.titulo);
+    try {
+      await processosRepoAsync.remove(p.id);
+      if (activeId === p.id) setActiveId(null);
+      await refresh();
+      toast("Processo removido.", "info");
+      registarAtividade("remover", "Processos", p.titulo);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao remover. Tenta novamente.", "error");
+    }
   }
 
   return (

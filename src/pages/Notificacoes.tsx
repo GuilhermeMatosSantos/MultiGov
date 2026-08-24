@@ -1,14 +1,13 @@
+import { useEffect, useState } from "react";
 import { ModulePage, distinctOptions } from "../components/ModulePage";
 import type { ColumnConfig, FieldConfig, FilterConfig } from "../components/ModulePage";
-import { wrapSync } from "../lib/asyncRepository";
-import { notificacoesRepo, processosRepo } from "../data/repos";
+import { notificacoesRepoAsync } from "../data/asyncRepos";
+import { processosRepo } from "../data/repos";
 import type { Notificacao } from "../types";
 import { useIdentidade } from "../lib/session";
 import { UrgencyBadge } from "../components/UrgencyBadge";
 import { useMarkSeenOnMount, isNovo } from "../lib/lastSeen";
 import { toast } from "../lib/toast";
-
-const notificacoesRepoAsync = wrapSync(notificacoesRepo);
 
 const tipos: Notificacao["tipo"][] = [
   "Regra",
@@ -22,7 +21,11 @@ export function Notificacoes() {
   const [identidade] = useIdentidade();
   const lastSeen = useMarkSeenOnMount("notificacoes");
   const processos = processosRepo.list();
-  const notificacoesAtuais = notificacoesRepo.list();
+  const [notificacoesAtuais, setNotificacoesAtuais] = useState<Notificacao[]>([]);
+
+  useEffect(() => {
+    notificacoesRepoAsync.list().then(setNotificacoesAtuais).catch(() => {});
+  }, []);
 
   function processoTitulo(processoId: string): string {
     if (!processoId) return "";

@@ -1,7 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { interlocutoresRepo } from "../data/repos";
-import { newId } from "../lib/id";
+import {
+  listarInterlocutores,
+  criarInterlocutor,
+  atualizarInterlocutor,
+  removerInterlocutor,
+  arquivarHistoricoInterlocutor,
+} from "../lib/interlocutoresRepository";
 import type { Interlocutor, Nivel } from "../types";
 import { Modal } from "../components/Modal";
 import { EmptyState } from "../components/EmptyState";
@@ -56,7 +61,7 @@ export function Interlocutores() {
   const location = useLocation();
   const [identidade] = useIdentidade();
   const podeEditar = podeEscrever(identidade.nivel, "interlocutores");
-  const [items, setItems] = useState<Interlocutor[]>(() => interlocutoresRepo.list());
+  const [items, setItems] = useState<Interlocutor[]>([]);
   const [search, setSearch] = useState(() => new URLSearchParams(location.search).get("q") ?? "");
   const [nivelFiltro, setNivelFiltro] = useState("");
   const [entidadeFiltro, setEntidadeFiltro] = useState("");
@@ -67,9 +72,14 @@ export function Interlocutores() {
   const [substituicaoAlvo, setSubstituicaoAlvo] = useState<Interlocutor | null>(null);
   const [substituicaoForm, setSubstituicaoForm] = useState(emptySubstituicao());
 
-  function refresh() {
-    setItems(interlocutoresRepo.list());
+  async function refresh() {
+    setItems(await listarInterlocutores());
   }
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -97,28 +107,38 @@ export function Interlocutores() {
     setFormOpen(true);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (editing) {
-      interlocutoresRepo.update(editing.id, formData);
-      toast("Alterações guardadas.");
-      registarAtividade("editar", "Interlocutores", formData.nome);
-    } else {
-      interlocutoresRepo.create({ id: newId(), ...formData, historico: [] });
-      toast("Interlocutor criado.");
-      registarAtividade("criar", "Interlocutores", formData.nome);
+    try {
+      if (editing) {
+        await atualizarInterlocutor(editing.id, formData);
+        toast("Alterações guardadas.");
+        registarAtividade("editar", "Interlocutores", formData.nome);
+      } else {
+        await criarInterlocutor(formData);
+        toast("Interlocutor criado.");
+        registarAtividade("criar", "Interlocutores", formData.nome);
+      }
+      await refresh();
+      setFormOpen(false);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao guardar. Tenta novamente.", "error");
     }
-    refresh();
-    setFormOpen(false);
   }
 
   async function handleDelete(item: Interlocutor) {
     const ok = await confirmDialog(`Remover "${item.nome}" (${item.entidade})? Esta ação não pode ser desfeita.`, "Remover");
     if (!ok) return;
-    interlocutoresRepo.remove(item.id);
-    refresh();
-    toast("Interlocutor removido.", "info");
-    registarAtividade("remover", "Interlocutores", `${item.nome} (${item.entidade})`);
+    try {
+      await removerInterlocutor(item.id);
+      await refresh();
+      toast("Interlocutor removido.", "info");
+      registarAtividade("remover", "Interlocutores", `${item.nome} (${item.entidade})`);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao remover. Tenta novamente.", "error");
+    }
   }
 
   function openSubstituicao(item: Interlocutor) {
@@ -126,11 +146,10 @@ export function Interlocutores() {
     setSubstituicaoForm(emptySubstituicao());
   }
 
-  function handleSubstituicao(e: React.FormEvent) {
+  async function handleSubstituicao(e: React.FormEvent) {
     e.preventDefault();
     if (!substituicaoAlvo) return;
     const arquivado = {
-      id: newId(),
       nome: substituicaoAlvo.nome,
       cargo: substituicaoAlvo.cargo,
       email: substituicaoAlvo.email,
@@ -139,18 +158,23 @@ export function Interlocutores() {
       ate: substituicaoForm.desde,
       notasTransicao: substituicaoForm.notasTransicao,
     };
-    interlocutoresRepo.update(substituicaoAlvo.id, {
-      nome: substituicaoForm.nome,
-      cargo: substituicaoForm.cargo,
-      email: substituicaoForm.email,
-      telefone: substituicaoForm.telefone,
-      atualizadoEm: substituicaoForm.desde,
-      historico: [...(substituicaoAlvo.historico ?? []), arquivado],
-    });
-    refresh();
-    setSubstituicaoAlvo(null);
-    toast(`Titular substituído — ${arquivado.nome} passou para o histórico.`);
-    registarAtividade("editar", "Interlocutores", `Substituição em ${substituicaoAlvo.entidade}: ${substituicaoForm.nome}`);
+    try {
+      await arquivarHistoricoInterlocutor(substituicaoAlvo.id, arquivado);
+      await atualizarInterlocutor(substituicaoAlvo.id, {
+        nome: substituicaoForm.nome,
+        cargo: substituicaoForm.cargo,
+        email: substituicaoForm.email,
+        telefone: substituicaoForm.telefone,
+        atualizadoEm: substituicaoForm.desde,
+      });
+      await refresh();
+      setSubstituicaoAlvo(null);
+      toast(`Titular substituído — ${arquivado.nome} passou para o histórico.`);
+      registarAtividade("editar", "Interlocutores", `Substituição em ${substituicaoAlvo.entidade}: ${substituicaoForm.nome}`);
+    } catch (err) {
+      console.error(err);
+      toast("Erro ao registar a substituição. Tenta novamente.", "error");
+    }
   }
 
   return (
