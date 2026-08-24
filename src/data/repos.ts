@@ -12,6 +12,7 @@ import type {
   Projeto,
   Noticia,
   Atividade,
+  AvaliacaoImpacto,
 } from "../types";
 import {
   seedInterlocutores,
@@ -70,3 +71,6 @@ export const noticiasRepo = createLocalStorageRepository<Noticia>("multigov.noti
 
 // Registo de atividade — entidade nova, sem dados de exemplo (começa vazia).
 export const atividadeRepo = createLocalStorageRepository<Atividade>("multigov.atividade", []);
+
+// Avaliações de impacto ("isto ajudou-te?") — entidade nova, começa vazia.
+export const avaliacoesRepo = createLocalStorageRepository<AvaliacaoImpacto>("multigov.avaliacoes", []);

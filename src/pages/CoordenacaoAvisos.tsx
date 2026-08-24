@@ -16,6 +16,7 @@ import { UrgencyBadge } from "../components/UrgencyBadge";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { registarAtividade } from "../lib/atividade";
 import { usePagination } from "../lib/usePagination";
+import { podeEscrever } from "../lib/permissoes";
 
 const estados: Aviso["estado"][] = ["Planeado", "Em preparação", "Aberto", "Fechado"];
 
@@ -46,6 +47,7 @@ export function CoordenacaoAvisos() {
   const location = useLocation();
   const deepLinkId = (location.state as { selectId?: string } | null)?.selectId;
   const [identidade] = useIdentidade();
+  const podeEditar = podeEscrever(identidade.nivel, "coordenacao-avisos");
   const [avisos, setAvisos] = useState<Aviso[]>(() => normalizar(avisosRepo.list()));
   const [activeId, setActiveId] = useState<string | null>(deepLinkId ?? avisos[0]?.id ?? null);
   const [vista, setVista] = useState<"lista" | "calendario">("lista");
@@ -210,9 +212,18 @@ export function CoordenacaoAvisos() {
           >
             Calendário
           </button>
-          <button className="btn btn-primary" onClick={openCreate}>
-            + Novo aviso
-          </button>
+          {podeEditar ? (
+            <button className="btn btn-primary" onClick={openCreate}>
+              + Novo aviso
+            </button>
+          ) : (
+            <span
+              className="badge badge-neutral"
+              title="O teu perfil tem acesso de leitura à criação de avisos — podes sempre comentar e confirmar"
+            >
+              🔒 Acesso de leitura
+            </span>
+          )}
         </div>
       </div>
 
@@ -282,14 +293,16 @@ export function CoordenacaoAvisos() {
                       </p>
                     )}
                   </div>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <button className="btn btn-ghost" onClick={() => openEdit(active)}>
-                      ✏️ Editar
-                    </button>
-                    <button className="btn btn-ghost btn-danger" onClick={() => handleDelete(active)}>
-                      🗑️ Remover
-                    </button>
-                  </div>
+                  {podeEditar && (
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button className="btn btn-ghost" onClick={() => openEdit(active)}>
+                        ✏️ Editar
+                      </button>
+                      <button className="btn btn-ghost btn-danger" onClick={() => handleDelete(active)}>
+                        🗑️ Remover
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {active.notasAlinhamento && <p className="page-description">{active.notasAlinhamento}</p>}

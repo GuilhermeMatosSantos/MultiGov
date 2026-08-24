@@ -3,8 +3,11 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { IdentityBar } from "./IdentityBar";
 import { CommandPalette } from "./CommandPalette";
 import { DataBackup } from "./DataBackup";
+import { FeedbackImpacto } from "./FeedbackImpacto";
+import { NotificacoesBrowserToggle } from "./NotificacoesBrowserToggle";
 import { LogoMark } from "./LogoMark";
 import { useTema } from "../lib/theme";
+import { verificarENotificar } from "../lib/notificacoesBrowser";
 import logoPat2030 from "../assets/pat2030-logo.svg";
 import logoPortugal2030 from "../assets/portugal2030-logo.png";
 import logoUe from "../assets/ue-cofinanciado-logo.png";
@@ -39,6 +42,12 @@ export function Layout() {
     document.title = item ? `${item.label} — MULTI.GOV` : "MULTI.GOV — Comunicação Multinível";
     setMobileNavOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    verificarENotificar();
+    const intervalo = setInterval(verificarENotificar, 5 * 60 * 1000);
+    return () => clearInterval(intervalo);
+  }, []);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -137,6 +146,8 @@ export function Layout() {
           <span>{tema === "dark" ? "☀️" : "🌙"}</span>
           {!colapsada && <span>{tema === "dark" ? "Tema claro" : "Tema escuro"}</span>}
         </button>
+        <NotificacoesBrowserToggle colapsada={colapsada} />
+        <FeedbackImpacto colapsada={colapsada} />
         <DataBackup colapsada={colapsada} />
         {!colapsada && <div className="sidebar-footer">Protótipo local · dados guardados no browser</div>}
       </aside>

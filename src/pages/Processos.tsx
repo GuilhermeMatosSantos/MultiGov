@@ -13,6 +13,8 @@ import { confirmDialog } from "../lib/confirm";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { registarAtividade } from "../lib/atividade";
 import { usePagination } from "../lib/usePagination";
+import { useIdentidade } from "../lib/session";
+import { podeEscrever } from "../lib/permissoes";
 
 const estados: Processo["estado"][] = [
   "Submetido",
@@ -37,6 +39,8 @@ function emptyForm(): Omit<Processo, "id"> {
 
 export function Processos() {
   const location = useLocation();
+  const [identidade] = useIdentidade();
+  const podeEditar = podeEscrever(identidade.nivel, "processos");
   const deepLinkId = (location.state as { selectId?: string } | null)?.selectId;
   const [processos, setProcessos] = useState<Processo[]>(() => processosRepo.list());
   const [activeId, setActiveId] = useState<string | null>(deepLinkId ?? processos[0]?.id ?? null);
@@ -133,9 +137,15 @@ export function Processos() {
             início ao fim, em vez de espalhar a sua história por vários módulos separados.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>
-          + Novo processo
-        </button>
+        {podeEditar ? (
+          <button className="btn btn-primary" onClick={openCreate}>
+            + Novo processo
+          </button>
+        ) : (
+          <span className="badge badge-neutral" title="O teu perfil tem acesso de leitura a este módulo">
+            🔒 Acesso de leitura
+          </span>
+        )}
       </div>
 
       <FilterBar
@@ -189,14 +199,16 @@ export function Processos() {
                     {active.entidadeResponsavel} · {active.programa} · aberto em {active.dataAbertura}
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 6 }}>
-                  <button className="btn btn-ghost" onClick={() => openEdit(active)}>
-                    ✏️ Editar
-                  </button>
-                  <button className="btn btn-ghost btn-danger" onClick={() => handleDelete(active)}>
-                    🗑️ Remover
-                  </button>
-                </div>
+                {podeEditar && (
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button className="btn btn-ghost" onClick={() => openEdit(active)}>
+                      ✏️ Editar
+                    </button>
+                    <button className="btn btn-ghost btn-danger" onClick={() => handleDelete(active)}>
+                      🗑️ Remover
+                    </button>
+                  </div>
+                )}
               </div>
 
               {avisoDoProcesso && (

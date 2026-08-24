@@ -9,6 +9,8 @@ import { confirmDialog } from "../lib/confirm";
 import { TagInput } from "./TagInput";
 import { registarAtividade } from "../lib/atividade";
 import { useFavoritos } from "../lib/favoritos";
+import { useIdentidade } from "../lib/session";
+import { podeEscrever } from "../lib/permissoes";
 
 export type FieldType = "text" | "textarea" | "date" | "select" | "checkbox" | "tags";
 
@@ -86,6 +88,9 @@ export function ModulePage<T extends { id: string }>({
   renderAbove,
 }: ModulePageProps<T>) {
   const location = useLocation();
+  const [identidade] = useIdentidade();
+  const moduloRota = location.pathname.replace(/^\//, "").split("/")[0] || "painel";
+  const podeEditar = podeEscrever(identidade.nivel, moduloRota);
   const { isFavorito, toggle: toggleFavorito } = useFavoritos();
   const [items, setItems] = useState<T[]>(() => repo.list());
   const [search, setSearch] = useState(() => new URLSearchParams(location.search).get("q") ?? "");
@@ -234,9 +239,15 @@ export function ModulePage<T extends { id: string }>({
           <h1>{title}</h1>
           <p className="page-description">{description}</p>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>
-          + Novo registo
-        </button>
+        {podeEditar ? (
+          <button className="btn btn-primary" onClick={openCreate}>
+            + Novo registo
+          </button>
+        ) : (
+          <span className="badge badge-neutral" title="O teu perfil tem acesso de leitura a este módulo">
+            🔒 Acesso de leitura
+          </span>
+        )}
       </div>
 
       {renderAbove?.(filtered)}
@@ -277,9 +288,11 @@ export function ModulePage<T extends { id: string }>({
         <div className="bulk-bar">
           <span className="bulk-bar-count">{selected.size} selecionado(s)</span>
           {bulkActions?.(selecionados, refresh, clearSelection)}
-          <button className="btn btn-ghost btn-danger" onClick={handleBulkDelete}>
-            🗑️ Remover selecionados
-          </button>
+          {podeEditar && (
+            <button className="btn btn-ghost btn-danger" onClick={handleBulkDelete}>
+              🗑️ Remover selecionados
+            </button>
+          )}
           <button className="btn btn-ghost" onClick={clearSelection}>
             ✕ Limpar seleção
           </button>
@@ -346,17 +359,21 @@ export function ModulePage<T extends { id: string }>({
                       {isFavorito(`${location.pathname}:${item.id}`) ? "★" : "☆"}
                     </button>
                     {extraActions?.(item, refresh)}
-                    <button className="btn btn-ghost btn-icon" onClick={() => openEdit(item)} title="Editar" aria-label={`Editar ${itemLabel(item)}`}>
-                      ✏️
-                    </button>
-                    <button
-                      className="btn btn-ghost btn-danger btn-icon"
-                      onClick={() => handleDelete(item)}
-                      title="Remover"
-                      aria-label={`Remover ${itemLabel(item)}`}
-                    >
-                      🗑️
-                    </button>
+                    {podeEditar && (
+                      <>
+                        <button className="btn btn-ghost btn-icon" onClick={() => openEdit(item)} title="Editar" aria-label={`Editar ${itemLabel(item)}`}>
+                          ✏️
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-danger btn-icon"
+                          onClick={() => handleDelete(item)}
+                          title="Remover"
+                          aria-label={`Remover ${itemLabel(item)}`}
+                        >
+                          🗑️
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}

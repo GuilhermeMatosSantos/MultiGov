@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { atividadeRepo } from "../data/repos";
+import { atividadeRepo, avaliacoesRepo } from "../data/repos";
 import { FilterBar } from "../components/FilterBar";
 import { EmptyState } from "../components/EmptyState";
 import { distinctOptions } from "../components/ModulePage";
@@ -14,6 +14,7 @@ const acaoLabel: Record<string, { texto: string; icon: string }> = {
 
 export function Atividade() {
   const [itens, setItens] = useState(() => atividadeRepo.list());
+  const avaliacoes = avaliacoesRepo.list();
   const [search, setSearch] = useState("");
   const [entidadeFiltro, setEntidadeFiltro] = useState("");
   const [acaoFiltro, setAcaoFiltro] = useState("");
@@ -50,6 +51,22 @@ export function Atividade() {
   const entidadesOrdenadas = Array.from(contagemPorEntidade.entries()).sort((a, b) => b[1] - a[1]);
   const maxContagem = Math.max(...entidadesOrdenadas.map(([, n]) => n), 1);
 
+  // Evidência de impacto, não só de uso: quantas pessoas dizem que isto
+  // ajudou, por módulo — para a avaliação da ferramenta se apoiar em dados,
+  // não só na intuição de quem a construiu.
+  const respostasRelevantes = avaliacoes.filter((a) => a.ajudou !== "nao_relevante");
+  const percentagemPositiva =
+    respostasRelevantes.length === 0
+      ? null
+      : Math.round((respostasRelevantes.filter((a) => a.ajudou === "sim").length / respostasRelevantes.length) * 100);
+  const porModulo = new Map<string, { sim: number; nao: number }>();
+  for (const a of respostasRelevantes) {
+    const atual = porModulo.get(a.modulo) ?? { sim: 0, nao: 0 };
+    if (a.ajudou === "sim") atual.sim += 1;
+    else atual.nao += 1;
+    porModulo.set(a.modulo, atual);
+  }
+
   async function limparHistorico() {
     const ok = await confirmDialog(
       "Limpar todo o registo de atividade? Esta ação não pode ser desfeita.",
@@ -78,6 +95,33 @@ export function Atividade() {
           </button>
         )}
       </div>
+
+      {avaliacoes.length > 0 && (
+        <section className="chart-section">
+          <h2>
+            Feedback de impacto
+            {percentagemPositiva !== null && (
+              <span className="feed-item-meta"> · {percentagemPositiva}% diz que ajudou ({respostasRelevantes.length} resposta(s))</span>
+            )}
+          </h2>
+          {Array.from(porModulo.entries()).map(([modulo, { sim, nao }]) => {
+            const total = sim + nao;
+            return (
+              <div key={modulo} className="chart-bar-row">
+                <span className="chart-bar-label" title={modulo}>
+                  {modulo}
+                </span>
+                <div className="chart-bar-track">
+                  <div className="chart-bar-fill" style={{ width: `${Math.max((sim / total) * 100, 3)}%` }} />
+                </div>
+                <span className="chart-bar-value">
+                  {sim}/{total} sim
+                </span>
+              </div>
+            );
+          })}
+        </section>
+      )}
 
       {entidadesOrdenadas.length > 0 && (
         <section className="chart-section">

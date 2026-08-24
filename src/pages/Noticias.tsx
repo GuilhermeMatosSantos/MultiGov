@@ -17,6 +17,8 @@ import { ficheiroParaImagemComprimida } from "../lib/image";
 import { obterPreVisualizacao } from "../lib/linkPreview";
 import { registarAtividade } from "../lib/atividade";
 import { usePagination } from "../lib/usePagination";
+import { useIdentidade } from "../lib/session";
+import { podeEscrever } from "../lib/permissoes";
 
 const fontes: Noticia["fonte"][] = ["Comissão Europeia", "Governo / Diário da República", "Autoridade de Gestão", "Outra"];
 const tipos: Noticia["tipo"][] = ["Alteração regulamentar", "Nova orientação", "Notícia", "Prazo relevante"];
@@ -59,6 +61,8 @@ export function Noticias() {
   const navigate = useNavigate();
   const location = useLocation();
   const lastSeen = useMarkSeenOnMount("noticias");
+  const [identidade] = useIdentidade();
+  const podeEditar = podeEscrever(identidade.nivel, "noticias");
   const [noticias, setNoticias] = useState<Noticia[]>(() => noticiasRepo.list());
   const [search, setSearch] = useState(() => new URLSearchParams(location.search).get("q") ?? "");
   const [fonteFiltro, setFonteFiltro] = useState("");
@@ -214,9 +218,15 @@ export function Noticias() {
             para consulta rápida sem ir à fonte original.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>
-          + Novo registo
-        </button>
+        {podeEditar ? (
+          <button className="btn btn-primary" onClick={openCreate}>
+            + Novo registo
+          </button>
+        ) : (
+          <span className="badge badge-neutral" title="O teu perfil tem acesso de leitura a este módulo">
+            🔒 Acesso de leitura
+          </span>
+        )}
       </div>
 
       <FilterBar
@@ -263,17 +273,19 @@ export function Noticias() {
                 )}
                 <div className="news-lead-footer">
                   {lead.dataEntradaVigor && <UrgencyBadge prazo={lead.dataEntradaVigor} kind="vigor" />}
-                  <div className="news-actions">
-                    <button className="btn btn-ghost" onClick={() => criarNotificacao(lead)}>
-                      → Notificação
-                    </button>
-                    <button className="btn btn-ghost" onClick={() => openEdit(lead)}>
-                      ✏️ Editar
-                    </button>
-                    <button className="btn btn-ghost btn-danger" onClick={() => handleDelete(lead)}>
-                      🗑️ Remover
-                    </button>
-                  </div>
+                  {podeEditar && (
+                    <div className="news-actions">
+                      <button className="btn btn-ghost" onClick={() => criarNotificacao(lead)}>
+                        → Notificação
+                      </button>
+                      <button className="btn btn-ghost" onClick={() => openEdit(lead)}>
+                        ✏️ Editar
+                      </button>
+                      <button className="btn btn-ghost btn-danger" onClick={() => handleDelete(lead)}>
+                        🗑️ Remover
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </article>
@@ -297,17 +309,19 @@ export function Noticias() {
                       </span>
                       {n.dataEntradaVigor && <UrgencyBadge prazo={n.dataEntradaVigor} kind="vigor" />}
                     </div>
-                    <div className="news-actions">
-                      <button className="btn btn-ghost" onClick={() => criarNotificacao(n)}>
-                        → Notificação
-                      </button>
-                      <button className="btn btn-ghost" onClick={() => openEdit(n)}>
-                        ✏️ Editar
-                      </button>
-                      <button className="btn btn-ghost btn-danger" onClick={() => handleDelete(n)}>
-                        🗑️ Remover
-                      </button>
-                    </div>
+                    {podeEditar && (
+                      <div className="news-actions">
+                        <button className="btn btn-ghost" onClick={() => criarNotificacao(n)}>
+                          → Notificação
+                        </button>
+                        <button className="btn btn-ghost" onClick={() => openEdit(n)}>
+                          ✏️ Editar
+                        </button>
+                        <button className="btn btn-ghost btn-danger" onClick={() => handleDelete(n)}>
+                          🗑️ Remover
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </article>
               ))}

@@ -5,6 +5,7 @@ import { Modal } from "./Modal";
 import { toast } from "../lib/toast";
 import { confirmDialog } from "../lib/confirm";
 import { InterestsPanel } from "./InterestsPanel";
+import { camadaDoNivel, NOME_CAMADA } from "../lib/permissoes";
 
 const niveis: Nivel[] = [
   "Comissão Europeia",
@@ -71,6 +72,13 @@ export function IdentityBar() {
             <>
               A navegar como <strong>{identidade.nome || "utilizador(a)"}</strong> · {identidade.entidade} ·{" "}
               {identidade.nivel}
+              <span
+                className="badge badge-info"
+                style={{ marginLeft: 8 }}
+                title="Camada de permissões — define o que podes criar/editar (protótipo, não é imposto por um servidor)"
+              >
+                {NOME_CAMADA[camadaDoNivel(identidade.nivel)]}
+              </span>
             </>
           ) : (
             <>Ainda não definiste a tua entidade — as notificações relevantes não são destacadas.</>

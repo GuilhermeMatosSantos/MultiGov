@@ -12,6 +12,8 @@ import { toast } from "../lib/toast";
 import { confirmDialog } from "../lib/confirm";
 import { registarAtividade } from "../lib/atividade";
 import { usePagination } from "../lib/usePagination";
+import { useIdentidade } from "../lib/session";
+import { podeEscrever } from "../lib/permissoes";
 
 const niveis: Nivel[] = [
   "Comissão Europeia",
@@ -52,6 +54,8 @@ function emptySubstituicao() {
 
 export function Interlocutores() {
   const location = useLocation();
+  const [identidade] = useIdentidade();
+  const podeEditar = podeEscrever(identidade.nivel, "interlocutores");
   const [items, setItems] = useState<Interlocutor[]>(() => interlocutoresRepo.list());
   const [search, setSearch] = useState(() => new URLSearchParams(location.search).get("q") ?? "");
   const [nivelFiltro, setNivelFiltro] = useState("");
@@ -159,9 +163,15 @@ export function Interlocutores() {
             substituir um titular, o anterior fica guardado no histórico em vez de se perder.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>
-          + Novo registo
-        </button>
+        {podeEditar ? (
+          <button className="btn btn-primary" onClick={openCreate}>
+            + Novo registo
+          </button>
+        ) : (
+          <span className="badge badge-neutral" title="O teu perfil tem acesso de leitura a este módulo">
+            🔒 Acesso de leitura
+          </span>
+        )}
       </div>
 
       <FilterBar
@@ -216,25 +226,29 @@ export function Interlocutores() {
                     >
                       🕘{(i.historico?.length ?? 0) > 0 ? ` ${i.historico.length}` : ""}
                     </button>
-                    <button
-                      className="btn btn-ghost btn-icon"
-                      onClick={() => openSubstituicao(i)}
-                      title="Substituir titular"
-                      aria-label={`Substituir titular de ${i.nome}`}
-                    >
-                      🔄
-                    </button>
-                    <button className="btn btn-ghost btn-icon" onClick={() => openEdit(i)} title="Editar" aria-label={`Editar ${i.nome}`}>
-                      ✏️
-                    </button>
-                    <button
-                      className="btn btn-ghost btn-danger btn-icon"
-                      onClick={() => handleDelete(i)}
-                      title="Remover"
-                      aria-label={`Remover ${i.nome}`}
-                    >
-                      🗑️
-                    </button>
+                    {podeEditar && (
+                      <>
+                        <button
+                          className="btn btn-ghost btn-icon"
+                          onClick={() => openSubstituicao(i)}
+                          title="Substituir titular"
+                          aria-label={`Substituir titular de ${i.nome}`}
+                        >
+                          🔄
+                        </button>
+                        <button className="btn btn-ghost btn-icon" onClick={() => openEdit(i)} title="Editar" aria-label={`Editar ${i.nome}`}>
+                          ✏️
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-danger btn-icon"
+                          onClick={() => handleDelete(i)}
+                          title="Remover"
+                          aria-label={`Remover ${i.nome}`}
+                        >
+                          🗑️
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}

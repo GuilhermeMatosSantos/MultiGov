@@ -192,6 +192,16 @@ export interface PerfilIdentidade extends Identidade {
   id: string;
 }
 
+export interface AvaliacaoImpacto {
+  id: string;
+  quando: string;
+  nome: string;
+  entidade: string;
+  modulo: string;
+  ajudou: "sim" | "nao" | "nao_relevante";
+  comentario: string;
+}
+
 export interface Atividade {
   id: string;
   quando: string;

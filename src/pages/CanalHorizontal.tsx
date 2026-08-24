@@ -14,6 +14,7 @@ import { confirmDialog } from "../lib/confirm";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { registarAtividade } from "../lib/atividade";
 import { usePagination } from "../lib/usePagination";
+import { podeEscrever } from "../lib/permissoes";
 
 const categorias: Topico["categoria"][] = ["CIM–CIM", "AG–AG", "CCDR–CCDR", "Boas práticas", "Outro"];
 const tiposPedido: NonNullable<Topico["tipoPedido"]>[] = ["Pergunta", "Pedido de intercâmbio", "Partilha de boas práticas"];
@@ -23,6 +24,7 @@ export function CanalHorizontal() {
   const location = useLocation();
   const deepLinkId = (location.state as { selectId?: string } | null)?.selectId;
   const [identidade] = useIdentidade();
+  const podeEditar = podeEscrever(identidade.nivel, "canal-horizontal");
   const [topicos, setTopicos] = useState<Topico[]>(() => topicosRepo.list());
   const [activeId, setActiveId] = useState<string | null>(deepLinkId ?? null);
   const [search, setSearch] = useState("");
@@ -152,9 +154,15 @@ export function CanalHorizontal() {
             institucional e rastreável dos grupos informais que já funcionam.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setNovoTopicoAberto(true)}>
-          + Novo tópico
-        </button>
+        {podeEditar ? (
+          <button className="btn btn-primary" onClick={() => setNovoTopicoAberto(true)}>
+            + Novo tópico
+          </button>
+        ) : (
+          <span className="badge badge-neutral" title="O teu perfil tem acesso de leitura a este módulo">
+            🔒 Acesso de leitura
+          </span>
+        )}
       </div>
 
       <FilterBar
@@ -218,9 +226,11 @@ export function CanalHorizontal() {
                     </p>
                   )}
                 </div>
-                <button className="btn btn-ghost btn-danger" onClick={() => handleDeleteTopico(active.id)}>
-                  🗑️ Remover tópico
-                </button>
+                {podeEditar && (
+                  <button className="btn btn-ghost btn-danger" onClick={() => handleDeleteTopico(active.id)}>
+                    🗑️ Remover tópico
+                  </button>
+                )}
               </div>
 
               {active.tipoPedido === "Pedido de intercâmbio" && (
