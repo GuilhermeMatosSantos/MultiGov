@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useIdentidade, usePerfis, salvarPerfil, removerPerfil } from "../lib/session";
 import { sairConta } from "../lib/auth";
+import { useContaReal } from "../lib/contaReal";
 import type { Nivel } from "../types";
 import { Modal } from "./Modal";
 import { toast } from "../lib/toast";
@@ -23,6 +24,7 @@ const niveis: Nivel[] = [
 export function IdentityBar() {
   const [identidade, setIdentidade] = useIdentidade();
   const perfis = usePerfis();
+  const contaReal = useContaReal();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(identidade);
 
@@ -85,6 +87,17 @@ export function IdentityBar() {
                 title="Camada de permissões: define o que podes criar/editar (protótipo, não é imposto por um servidor)"
               >
                 {NOME_CAMADA[camadaDoNivel(identidade.nivel)]}
+              </span>
+              <span
+                className={`badge ${contaReal ? "badge-aberto" : "badge-neutral"}`}
+                style={{ marginLeft: 6 }}
+                title={
+                  contaReal
+                    ? "Autenticado com conta real (email + palavra-passe)"
+                    : "Modo de teste: identidade autodeclarada, sem conta real"
+                }
+              >
+                {contaReal ? "🔑 Conta" : "🧪 Teste"}
               </span>
             </>
           ) : (

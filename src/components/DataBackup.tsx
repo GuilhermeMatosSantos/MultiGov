@@ -21,7 +21,7 @@ export function DataBackup({ colapsada }: Props) {
 
     const texto = await file.text();
     const ok = await confirmDialog(
-      "Importar este ficheiro substitui todos os dados guardados neste browser (não afeta outros dispositivos). Continuar?",
+      "Importar este ficheiro substitui as tuas preferências guardadas neste browser (tema, perfis guardados, favoritos). Não afeta os dados partilhados (processos, avisos, notificações, etc.) nem outros dispositivos. Continuar?",
       "Importar e substituir"
     );
     if (!ok) return;
@@ -31,7 +31,7 @@ export function DataBackup({ colapsada }: Props) {
       toast(resultado.mensagem, "error");
       return;
     }
-    toast("Dados importados. A recarregar...");
+    toast("Preferências importadas. A recarregar...");
     setTimeout(() => window.location.reload(), 800);
   }
 
@@ -40,17 +40,17 @@ export function DataBackup({ colapsada }: Props) {
       <button
         className="data-backup-btn"
         onClick={descarregarExportacao}
-        title="Descarregar todos os dados em JSON"
-        aria-label="Exportar dados"
+        title="Descarregar as tuas preferências deste browser em JSON (tema, perfis guardados, favoritos). Não inclui os dados partilhados, esses estão na base de dados."
+        aria-label="Exportar preferências locais"
       >
         <span>⬇️</span>
-        {!colapsada && <span>Exportar</span>}
+        {!colapsada && <span>Preferências</span>}
       </button>
       <button
         className="data-backup-btn"
         onClick={handleImportClick}
-        title="Substituir os dados a partir de um ficheiro exportado"
-        aria-label="Importar dados"
+        title="Substituir as tuas preferências deste browser a partir de um ficheiro exportado"
+        aria-label="Importar preferências locais"
       >
         <span>⬆️</span>
         {!colapsada && <span>Importar</span>}
