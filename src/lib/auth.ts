@@ -63,3 +63,22 @@ export async function sairConta(): Promise<void> {
   }
   setIdentidade({ nome: "", entidade: "", nivel: "Municipal" });
 }
+
+export async function pedirRecuperacaoPassword(email: string): Promise<ResultadoAuth> {
+  if (!supabaseConfigurado) {
+    return { erro: "A Supabase não está configurada neste ambiente." };
+  }
+  const destino = `${window.location.origin}${import.meta.env.BASE_URL}`;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: destino });
+  if (error) return { erro: error.message };
+  return {};
+}
+
+export async function definirNovaPassword(novaPassword: string): Promise<ResultadoAuth> {
+  if (!supabaseConfigurado) {
+    return { erro: "A Supabase não está configurada neste ambiente." };
+  }
+  const { error } = await supabase.auth.updateUser({ password: novaPassword });
+  if (error) return { erro: error.message };
+  return {};
+}

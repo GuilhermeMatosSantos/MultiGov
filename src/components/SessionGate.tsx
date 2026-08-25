@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useIdentidade, usePerfis } from "../lib/session";
-import { registarConta, entrarConta } from "../lib/auth";
+import { registarConta, entrarConta, pedirRecuperacaoPassword } from "../lib/auth";
 import { garantirSessaoSupabase } from "../lib/supabaseAuth";
 import { toast } from "../lib/toast";
 import { LogoMark } from "./LogoMark";
@@ -26,9 +26,11 @@ interface SessionGateProps {
 export function SessionGate({ children }: SessionGateProps) {
   const [identidade, setIdentidade] = useIdentidade();
   const perfis = usePerfis();
-  const [modo, setModo] = useState<"entrar" | "registo" | "teste">("entrar");
+  const [modo, setModo] = useState<"entrar" | "registo" | "teste" | "recuperar">("entrar");
   const [carregando, setCarregando] = useState(false);
   const [authForm, setAuthForm] = useState({ email: "", password: "" });
+  const [emailRecuperacao, setEmailRecuperacao] = useState("");
+  const [recuperacaoEnviada, setRecuperacaoEnviada] = useState(false);
   const [form, setForm] = useState({ nome: identidade.nome, entidade: identidade.entidade, nivel: identidade.nivel });
 
   if (identidade.entidade && identidade.nome) {
@@ -65,6 +67,18 @@ export function SessionGate({ children }: SessionGateProps) {
     if (resultado.erro) {
       toast(resultado.erro, "error");
     }
+  }
+
+  async function handleRecuperar(e: React.FormEvent) {
+    e.preventDefault();
+    setCarregando(true);
+    const resultado = await pedirRecuperacaoPassword(emailRecuperacao);
+    setCarregando(false);
+    if (resultado.erro) {
+      toast(resultado.erro, "error");
+      return;
+    }
+    setRecuperacaoEnviada(true);
   }
 
   // Garante que a sessão anónima já existe antes de desbloquear a app —
@@ -104,7 +118,7 @@ export function SessionGate({ children }: SessionGateProps) {
           </div>
         </div>
 
-        {modo !== "teste" ? (
+        {modo === "entrar" || modo === "registo" ? (
           <>
             <h1>{modo === "entrar" ? "Entra na tua conta" : "Cria a tua conta"}</h1>
             <p className="session-gate-note">
@@ -141,6 +155,19 @@ export function SessionGate({ children }: SessionGateProps) {
                 <div className="form-actions session-gate-actions">
                   <button type="submit" className="btn btn-primary" disabled={carregando}>
                     {carregando ? "A entrar..." : "Entrar"}
+                  </button>
+                </div>
+                <div className="session-gate-divider">
+                  <button
+                    type="button"
+                    className="session-gate-link"
+                    onClick={() => {
+                      setEmailRecuperacao(authForm.email);
+                      setRecuperacaoEnviada(false);
+                      setModo("recuperar");
+                    }}
+                  >
+                    Esqueci-me da password
                   </button>
                 </div>
               </form>
@@ -225,6 +252,53 @@ export function SessionGate({ children }: SessionGateProps) {
                 Ou explorar em modo de teste, sem conta
               </button>
             </div>
+          </>
+        ) : modo === "recuperar" ? (
+          <>
+            <h1>Repor password</h1>
+            {recuperacaoEnviada ? (
+              <>
+                <p className="session-gate-note">
+                  Se existir uma conta com esse email, enviámos um link para definires uma password nova. Verifica
+                  a caixa de entrada (e o spam).
+                </p>
+                <div className="form-actions session-gate-actions">
+                  <button type="button" className="btn btn-primary" onClick={() => setModo("entrar")}>
+                    Voltar ao login
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="session-gate-note">
+                  Escreve o email da tua conta. Enviamos-te um link para definires uma password nova.
+                </p>
+                <form className="form" onSubmit={handleRecuperar}>
+                  <div className="form-field form-field-full">
+                    <label>
+                      Email<span className="required">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={emailRecuperacao}
+                      onChange={(e) => setEmailRecuperacao(e.target.value)}
+                      placeholder="ex.: ana.carranho@cim-cavado.pt"
+                    />
+                  </div>
+                  <div className="form-actions session-gate-actions">
+                    <button type="submit" className="btn btn-primary" disabled={carregando}>
+                      {carregando ? "A enviar..." : "Enviar link de recuperação"}
+                    </button>
+                  </div>
+                </form>
+                <div className="session-gate-divider">
+                  <button type="button" className="session-gate-link" onClick={() => setModo("entrar")}>
+                    ← Voltar ao login
+                  </button>
+                </div>
+              </>
+            )}
           </>
         ) : (
           <>

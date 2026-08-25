@@ -3,6 +3,7 @@ import { Layout } from "./components/Layout";
 import { ToastHost } from "./lib/toast";
 import { ConfirmDialogHost } from "./lib/confirm";
 import { SessionGate } from "./components/SessionGate";
+import { PasswordRecovery } from "./components/PasswordRecovery";
 import { Dashboard } from "./pages/Dashboard";
 import { Processos } from "./pages/Processos";
 import { Interlocutores } from "./pages/Interlocutores";
@@ -22,25 +23,27 @@ export function App() {
     <HashRouter>
       <ToastHost />
       <ConfirmDialogHost />
-      <SessionGate>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="processos" element={<Processos />} />
-            <Route path="interlocutores" element={<Interlocutores />} />
-            <Route path="notificacoes" element={<Notificacoes />} />
-            <Route path="noticias" element={<Noticias />} />
-            <Route path="base-conhecimento" element={<BaseConhecimento />} />
-            <Route path="coordenacao-avisos" element={<CoordenacaoAvisos />} />
-            <Route path="canal-horizontal" element={<CanalHorizontal />} />
-            <Route path="registo-informal" element={<RegistoInformal />} />
-            <Route path="monitorizacao-territorial" element={<MonitorizacaoTerritorial />} />
-            <Route path="memoria-projetos" element={<MemoriaProjetos />} />
-            <Route path="transparencia" element={<Transparencia />} />
-            <Route path="atividade" element={<Atividade />} />
-          </Route>
-        </Routes>
-      </SessionGate>
+      <PasswordRecovery>
+        <SessionGate>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="processos" element={<Processos />} />
+              <Route path="interlocutores" element={<Interlocutores />} />
+              <Route path="notificacoes" element={<Notificacoes />} />
+              <Route path="noticias" element={<Noticias />} />
+              <Route path="base-conhecimento" element={<BaseConhecimento />} />
+              <Route path="coordenacao-avisos" element={<CoordenacaoAvisos />} />
+              <Route path="canal-horizontal" element={<CanalHorizontal />} />
+              <Route path="registo-informal" element={<RegistoInformal />} />
+              <Route path="monitorizacao-territorial" element={<MonitorizacaoTerritorial />} />
+              <Route path="memoria-projetos" element={<MemoriaProjetos />} />
+              <Route path="transparencia" element={<Transparencia />} />
+              <Route path="atividade" element={<Atividade />} />
+            </Route>
+          </Routes>
+        </SessionGate>
+      </PasswordRecovery>
     </HashRouter>
   );
 }
