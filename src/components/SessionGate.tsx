@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useIdentidade, usePerfis } from "../lib/session";
 import { registarConta, entrarConta, pedirRecuperacaoPassword } from "../lib/auth";
 import { garantirSessaoSupabase } from "../lib/supabaseAuth";
@@ -32,6 +32,16 @@ export function SessionGate({ children }: SessionGateProps) {
   const [emailRecuperacao, setEmailRecuperacao] = useState("");
   const [recuperacaoEnviada, setRecuperacaoEnviada] = useState(false);
   const [form, setForm] = useState({ nome: identidade.nome, entidade: identidade.entidade, nivel: identidade.nivel });
+
+  // Ao sair, volta sempre ao ecrã principal de login — sem isto, ficava
+  // preso na última aba usada (ex.: "modo de teste"), o que dificultava
+  // entrar com outro perfil logo a seguir a sair.
+  useEffect(() => {
+    if (!identidade.entidade || !identidade.nome) {
+      setModo("entrar");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [identidade.entidade, identidade.nome]);
 
   if (identidade.entidade && identidade.nome) {
     return <>{children}</>;
