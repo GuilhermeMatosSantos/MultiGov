@@ -2230,6 +2230,10 @@ button {
   margin-bottom: 22px;
 }
 
+.session-gate-brand .module-help-trigger-labeled {
+  margin-left: auto;
+}
+
 .brand-title-dark {
   font-weight: 700;
   font-size: 16px;

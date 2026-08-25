@@ -76,13 +76,7 @@ export function IdentityBar() {
   return (
     <div className="identity-bar">
       <div className="identity-bar-main">
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          {definida && (
-            <button className="btn btn-ghost identity-logout-btn" onClick={handleSair} title="Terminar sessão">
-              <span aria-hidden="true">🚪</span> Logout
-            </button>
-          )}
-          <span className="identity-bar-label">
+        <span className="identity-bar-label">
           {definida ? (
             <>
               A navegar como <strong>{identidade.nome || "utilizador(a)"}</strong> · {identidade.entidade} ·{" "}
@@ -109,13 +103,17 @@ export function IdentityBar() {
           ) : (
             <>Ainda não definiste a tua entidade, as notificações relevantes não são destacadas.</>
           )}
-          </span>
-        </div>
-        <div style={{ display: "flex", gap: 6 }}>
+        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <InterestsPanel />
           <button className="btn btn-ghost" onClick={openModal}>
             {definida ? "Alterar" : "Definir identidade"}
           </button>
+          {definida && (
+            <button className="btn btn-ghost identity-logout-btn" onClick={handleSair} title="Terminar sessão">
+              <span aria-hidden="true">🚪</span> Logout
+            </button>
+          )}
         </div>
       </div>
 
