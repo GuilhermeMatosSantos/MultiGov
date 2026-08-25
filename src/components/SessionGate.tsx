@@ -4,6 +4,7 @@ import { registarConta, entrarConta } from "../lib/auth";
 import { garantirSessaoSupabase } from "../lib/supabaseAuth";
 import { toast } from "../lib/toast";
 import { LogoMark } from "./LogoMark";
+import { ModuleHelp } from "./ModuleHelp";
 import type { Nivel } from "../types";
 
 const niveis: Nivel[] = [
@@ -90,7 +91,15 @@ export function SessionGate({ children }: SessionGateProps) {
             <LogoMark size={26} />
           </span>
           <div>
-            <div className="brand-title-dark">MULTI.GOV</div>
+            <div className="brand-title-dark">
+              MULTI.GOV
+              <ModuleHelp
+                titulo="MULTI.GOV"
+                oQueE="Uma plataforma de coordenação entre os vários níveis envolvidos na gestão dos fundos europeus em Portugal: Comissão Europeia, autoridades nacionais, autoridades de gestão, CIM, municípios e organismos intermédios."
+                paraQueServe="Para centralizar processos, notificações, avisos, decisões e boas práticas num só sítio, em vez de a coordenação depender de emails avulsos ou da memória de cada pessoa."
+                comoUsar="Cria uma conta para participares a sério, ou explora em modo de teste para simulares diferentes perfis sem compromisso. Cada módulo tem o seu próprio ⓘ a explicar o que faz."
+              />
+            </div>
             <div className="session-gate-subtitle">Comunicação multinível</div>
           </div>
         </div>
