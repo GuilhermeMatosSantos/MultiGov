@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase, supabaseConfigurado } from "../lib/supabase";
-import { definirNovaPassword } from "../lib/auth";
+import { definirNovaPassword, sairConta } from "../lib/auth";
 import { toast } from "../lib/toast";
 import { LogoMark } from "./LogoMark";
 
@@ -66,6 +66,13 @@ export function PasswordRecovery({ children }: Props) {
     setEmRecuperacao(false);
   }
 
+  async function handleCancelar() {
+    setCarregando(true);
+    await sairConta();
+    setCarregando(false);
+    setEmRecuperacao(false);
+  }
+
   return (
     <div className="session-gate">
       <div className="session-gate-card">
@@ -115,6 +122,12 @@ export function PasswordRecovery({ children }: Props) {
             </button>
           </div>
         </form>
+
+        <div className="session-gate-divider">
+          <button type="button" className="session-gate-link" onClick={handleCancelar} disabled={carregando}>
+            ← Voltar ao login
+          </button>
+        </div>
       </div>
     </div>
   );
